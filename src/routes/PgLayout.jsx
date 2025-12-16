@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Navbar from "../Components/Navbar";
-import Sidebar from "../Components/Sidebar";
+import Navbar from "../components/pgOwners/Navbar";
+import Sidebar from "../components/pgOwners/Sidebar";
 
 export default function Layout({ children }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);

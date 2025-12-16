@@ -1,17 +1,17 @@
 import { useRoutes } from "react-router-dom";
 import PgDashboard from "../components/pgOwners/PgDasboard"
-import MainLayout from "./Mainlayout";
-import PageNotFound from "../Components/PageNotFound/PageNotFound";
+import PgLayout from "./PgLayout";
+import PageNotFound from "../components/pgOwners/PageNotFound";
 
-export const AppRoute = () => {
+export const PgRoute = () => {
   const routes = [
      
     {
       path: "/",
       element: (
-        <MainLayout>
+        <PgLayout>
           <PgDashboard />
-        </MainLayout>
+        </PgLayout>
       ),
     },
    {

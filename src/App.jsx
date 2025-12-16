@@ -15,7 +15,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import EnquiryForm from "./components/ui/enquiry.jsx";
 import { useEffect } from "react";
 import PgDasboard from "./components/pgOwners/PgDasboard.jsx";
-import PgRoute from "./routes/PgRoute.jsx"
+import {PgRoute} from "./routes/PgRoute.jsx"
 
 function App() {
   const location = useLocation();
