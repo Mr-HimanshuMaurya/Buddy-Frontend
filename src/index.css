@@ -1,0 +1,36 @@
+@import "tailwindcss/preflight";
+@tailwind utilities;
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/*
+  Custom project base styles were here. Keep them for reference —
+  Tailwind is now included via the @tailwind directives above. If
+  you want to use custom base styles, move them below or convert
+  them into Tailwind utilities/components.
+
+  Example: replace `h1 { font-size: 3.2em }` with `text-4xl` or
+  `text-[3.2em]` in markup.
+*/
