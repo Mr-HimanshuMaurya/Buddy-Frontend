@@ -1,4 +1,5 @@
 import Hero from '../components/landing/Hero.jsx'
+import PropertyCircles from '../components/landing/PropertyCircles.jsx'
 import FeaturedProperties from '../components/landing/FeaturedProperties.jsx'
 import TravelPartners from '../components/landing/TravelPartners.jsx'
 import Bankpartners from '../components/landing/Bankpartners.jsx'
@@ -12,6 +13,7 @@ export default function LandingPage() {
   return (
     <div className="space-y-16">
       <Hero />
+      <PropertyCircles />
       {/* <TravelPartners /> */}
       
        

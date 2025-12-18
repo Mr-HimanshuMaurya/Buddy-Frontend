@@ -20,7 +20,7 @@ export default function ModernLogin() {
     try {
       const apiUrl =
         import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
-      const response = await fetch(`${apiUrl}/login`, {
+      const response = await fetch(`${apiUrl}/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -30,7 +30,8 @@ export default function ModernLogin() {
 
       if (response.ok && data.message === "Login successful") {
         localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("userEmail", data.user?.email || email);
+        localStorage.setItem("userEmail", data.data?.user?.email || email);
+        localStorage.setItem("userId", data.data?.user?._id);
         toast.success("Login successful! Redirecting...");
         setTimeout(() => navigate("/admin/dashboard"), 1000);
       } else {

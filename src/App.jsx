@@ -14,15 +14,25 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { Routes, Route, useLocation } from "react-router-dom";
 import EnquiryForm from "./components/ui/enquiry.jsx";
 import { useEffect } from "react";
-import PgDasboard from "./components/pgOwners/PgDasboard.jsx";
-import {PgRoute} from "./routes/PgRoute.jsx"
+import PgDashboard from "./components/PgOwner/PgDashboard.jsx";
+import CreateProperty from "./components/PgOwner/CreateProperty.jsx";
+import PgOwnerProtectedRoute from "./components/PgOwner/PgOwnerProtectedRoute.jsx";
+import PropertyDetails from "./components/properties/PropertyDetails.jsx";
+import PageNotFound from "./components/PageNotFound.jsx";
+
 
 function App() {
   const location = useLocation();
+  const segments = location.pathname.split("/").filter(Boolean);
+  const isPropertyDetailsRoute =
+    segments[0] === "properties" &&
+    segments.length === 2 &&
+    !["commercial", "residential", "roi"].includes(segments[1]);
   const hideChrome =
     location.pathname === "/login" ||
     location.pathname.startsWith("/admin") ||
-    location.pathname === "/pgDasboard";
+    location.pathname.startsWith("/pg-owner") ||
+    isPropertyDetailsRoute;
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -30,7 +40,6 @@ function App() {
 
   return (
     <>
-    <PgRoute/>
       {!hideChrome && <Header />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -40,9 +49,13 @@ function App() {
         <Route path="/properties/roi" element={<ROI />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/pgDasboard" element={<PgDasboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/enquiry" element={<EnquiryForm />} />
+        <Route path="/pg-owner/dashboard" element={<PgDashboard/>}/>
+        <Route path="/pg-owner/create-property" element={<CreateProperty />} />
+        <Route path="/pg-owner/properties/:id" element={<PropertyDetails />} />
+        <Route path="/properties/:id" element={<PropertyDetails />} />
+
         <Route
           path="/admin/dashboard"
           element={
@@ -51,6 +64,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
       {!hideChrome && (
         <div className="mt-[50px]">
