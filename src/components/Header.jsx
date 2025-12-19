@@ -113,7 +113,7 @@ export default function Header() {
             <img
               src={logo}
               alt="PG Booking"
-              className="h-2  ml-[12px] w-10 object-contain"
+              className="h-10  ml-[12px] w-10 object-contain"
             />
           </Link>
 
@@ -140,6 +140,17 @@ export default function Header() {
   hover:after:w-full hover:!text-sky-400"
               >
                 About
+              </Link>
+
+              <Link
+                to="/properties"
+                className="text-base font-bold relative 
+  after:absolute after:left-0 after:-bottom-1 
+  after:h-[2px] after:w-0 after:bg-sky-400 
+  after:transition-all after:duration-300 
+  hover:after:w-full hover:!text-sky-400"
+              >
+                Properties
               </Link>
 
               <Link
