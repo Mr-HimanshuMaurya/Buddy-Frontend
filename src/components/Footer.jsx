@@ -1,62 +1,57 @@
-import logo from "../assets/logo.png";
+import { motion } from "framer-motion";
+import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin, Heart } from "lucide-react";
+import logo from "../assets/PG.png";
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="w-full border-t border-gray-800 bg-black mt-10 text-white">
-      <div className="mx-auto max-w-7xl px-4 py-[52px]">
-        <div className="grid md:grid-cols-3 gap-10">
-          <div>
-            {/* Logo and tagline */}
-            <div className="flex items-center justify-start -ml-4">
-              <img
-                src={logo}
-                alt="Amira Greens"
-                className="block h-12 w-40 object-contain"
-              />
+    <footer className="bg-slate-950 text-slate-300 border-t border-slate-900 relative overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-900/10 rounded-full blur-[100px]" />
+      </div>
 
-              <div className="text-sm text-white/80 max-w-sm ml-4">
-                The Ultimate Hub for Buying and Selling Luxury Residences and
-                World-Class Commercial Properties.
-              </div>
-            </div>
-
-            {/* AMIRA letters centered */}
-            <div className="flex items-center justify-center gap-3 mt-[-30px] ml-[150px]">
-              {["A", "M", "I", "R", "A"].map((s) => (
-                <span
-                  key={s}
-                  className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white font-semibold text-lg"
-                >
-                  {s}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="text-sm ashubom text-white/60">CALL</div>
-            <div className="mt-2 ashubom text-white">+91 8130426298</div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
         
-            <div className="mt-6 ashubom text-sm text-white/60">WRITE</div>
-            <div className="mt-2 space-y-1">
-              {/* <a href="mailto:info@royalerealtorsindia.com" className="text-white/90 hover:text-white text-sm">www.amiralandholdings.com</a> */}
-              <div className="text-white/90 ashubom text-sm">
-                info@amiralandholdings.com
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-sm ashubom text-white/60">VISIT</div>
-            <div className="mt-2 ashubom text-white/90 text-sm max-w-xs">
-              Nawal Tower, Sector 116, Machchgar, Mohna Road, Near IMT,
-              Faridabad, Haryana
-            </div>
-          </div>
+        {/* Logo & Tagline */}
+        <div className="mb-8">
+          <img src={logo} alt="Logo" className="h-12 w-auto mx-auto mb-4" />
+          <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
+            Your trusted companion for finding the perfect living space. Comfortable, secure, and affordable.
+          </p>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/70">
-          © AMIRA GREENS {new Date().getFullYear()}. ALL RIGHTS RESERVED.
+        {/* Social Links */}
+        <div className="flex items-center gap-6 mb-8">
+          {[Facebook, Twitter, Instagram, Linkedin].map((Icon, index) => (
+            <a
+              key={index}
+              href="#"
+              className="text-slate-500 hover:text-indigo-400 transition-colors hover:scale-110 transform duration-300"
+            >
+              <Icon className="w-5 h-5" />
+            </a>
+          ))}
+        </div>
+
+        {/* Quick Links & Contact */}
+        <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm font-medium text-slate-400 mb-8">
+          <a href="#" className="hover:text-white transition-colors">About Us</a>
+          <a href="#" className="hover:text-white transition-colors">Properties</a>
+          <a href="#" className="hover:text-white transition-colors">Contact</a>
+          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+          <a href="#" className="hover:text-white transition-colors">Terms</a>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="border-t border-slate-900 w-full pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
+          <div>
+            © {currentYear} All rights reserved.
+          </div>
+          <div className="flex items-center gap-1">
+            Made with <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" /> in India
+          </div>
         </div>
       </div>
     </footer>

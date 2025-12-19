@@ -17,6 +17,7 @@ import { useEffect } from "react";
 import PgDashboard from "./components/PgOwner/PgDashboard.jsx";
 import CreateProperty from "./components/PgOwner/CreateProperty.jsx";
 import PgOwnerProtectedRoute from "./components/PgOwner/PgOwnerProtectedRoute.jsx";
+import PgOwnerAuth from "./components/PgOwner/PgOwnerAuth.jsx";
 import PropertyDetails from "./components/properties/PropertyDetails.jsx";
 import PageNotFound from "./components/PageNotFound.jsx";
 
@@ -31,7 +32,7 @@ function App() {
   const hideChrome =
     location.pathname === "/login" ||
     location.pathname.startsWith("/admin") ||
-    location.pathname.startsWith("/pg-owner") ||
+    location.pathname.startsWith("/pg-owner/") ||
     isPropertyDetailsRoute;
 
   useEffect(() => {
@@ -52,6 +53,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/enquiry" element={<EnquiryForm />} />
         <Route path="/pg-owner/dashboard" element={<PgDashboard/>}/>
+        <Route path="/pg-owner-login" element={<PgOwnerAuth />} />
         <Route path="/pg-owner/create-property" element={<CreateProperty />} />
         <Route path="/pg-owner/properties/:id" element={<PropertyDetails />} />
         <Route path="/properties/:id" element={<PropertyDetails />} />
@@ -67,9 +69,7 @@ function App() {
         <Route path="*" element={<PageNotFound />} />
       </Routes>
       {!hideChrome && (
-        <div className="mt-[50px]">
           <Footer />
-        </div>
       )}
     </>
   );

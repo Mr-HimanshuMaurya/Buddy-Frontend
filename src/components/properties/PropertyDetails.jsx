@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   MapPin, 
   IndianRupee, 
@@ -13,7 +14,8 @@ import {
   Mail,
   ArrowLeft,
   Share2,
-  
+  Clock,
+  X
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -24,12 +26,66 @@ export default function PropertyDetails() {
   
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
+  const [visitLoading, setVisitLoading] = useState(false);
+  const [visitForm, setVisitForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    date: "",
+    time: "",
+    message: ""
+  });
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
   useEffect(() => {
     fetchPropertyDetails();
   }, [id]);
+
+  const handleVisitChange = (e) => {
+    setVisitForm({ ...visitForm, [e.target.name]: e.target.value });
+  };
+
+  const handleVisitSubmit = async (e) => {
+    e.preventDefault();
+    setVisitLoading(true);
+
+    try {
+      const response = await fetch(`${apiUrl}/bookings/visit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          propertyId: id,
+          ...visitForm
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Visit scheduled successfully!");
+        setIsVisitModalOpen(false);
+        setVisitForm({
+          name: "",
+          email: "",
+          phone: "",
+          date: "",
+          time: "",
+          message: ""
+        });
+      } else {
+        toast.error(data.message || "Failed to schedule visit");
+      }
+    } catch (error) {
+      console.error("Error scheduling visit:", error);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setVisitLoading(false);
+    }
+  };
 
   const handleShare = async () => {
     try {
@@ -217,6 +273,12 @@ export default function PropertyDetails() {
                     <Phone size={18} /> Call Owner
                   </button>
                 )}
+                <button 
+                  onClick={() => setIsVisitModalOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 shadow-lg hover:shadow-xl transition"
+                >
+                  <Clock size={18} /> Book A Visit
+                </button>
                 <button className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 shadow-lg hover:shadow-xl transition">
                   <Mail size={18} /> Send Enquiry
                 </button>
@@ -234,6 +296,121 @@ export default function PropertyDetails() {
 
         </div>
       </main>
+
+      {/* Visit Modal */}
+      <AnimatePresence>
+        {isVisitModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+            >
+              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 className="text-xl font-bold text-gray-800">Schedule a Visit</h3>
+                <button 
+                  onClick={() => setIsVisitModalOpen(false)}
+                  className="p-2 hover:bg-gray-200 rounded-full transition text-gray-500"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <form onSubmit={handleVisitSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={visitForm.name}
+                    onChange={handleVisitChange}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={visitForm.email}
+                    onChange={handleVisitChange}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={visitForm.phone}
+                    onChange={handleVisitChange}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input
+                      type="date"
+                      name="date"
+                      value={visitForm.date}
+                      onChange={handleVisitChange}
+                      required
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                    <input
+                      type="time"
+                      name="time"
+                      value={visitForm.time}
+                      onChange={handleVisitChange}
+                      required
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Message (Optional)</label>
+                  <textarea
+                    name="message"
+                    value={visitForm.message}
+                    onChange={handleVisitChange}
+                    rows="3"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition resize-none"
+                    placeholder="Any specific questions or preferences?"
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={visitLoading}
+                  className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg hover:shadow-xl transition disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+                >
+                  {visitLoading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    "Confirm Visit"
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
