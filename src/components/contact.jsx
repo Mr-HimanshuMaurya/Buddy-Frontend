@@ -140,7 +140,7 @@ export default function Contact() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 relative overflow-hidden">
+    <div className="min-h-screen mt-9 bg-slate-50 font-sans selection:bg-indigo-100 relative overflow-hidden">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar theme="colored" />
       
       {/* Background Video Ambience */}

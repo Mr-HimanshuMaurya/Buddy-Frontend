@@ -342,7 +342,7 @@ export default function PgOwnerAuth() {
               <ShieldCheck size={14} /> Trusted by 5000+ Owners
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              Grow Your Property Business with Buddy
+              Grow Your Property Business with Us!
             </h1>
             <p className="text-lg text-indigo-100 mb-10 leading-relaxed max-w-lg">
               Streamline your PG management, find verified tenants faster, and maximize your rental yields with our comprehensive dashboard.

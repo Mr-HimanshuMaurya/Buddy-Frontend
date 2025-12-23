@@ -37,15 +37,80 @@ export default function PropertyDetails() {
     message: ""
   });
 
+  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
+  const [enquiryLoading, setEnquiryLoading] = useState(false);
+  const [enquiryForm, setEnquiryForm] = useState({
+    name: "",
+    email: "",
+    number: "",
+    city: "",
+    message: ""
+  });
+
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
   useEffect(() => {
     fetchPropertyDetails();
   }, [id]);
 
+  const checkAuth = (action) => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      toast.info("Please login to continue");
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
+    action();
+  };
+
   const handleVisitChange = (e) => {
     setVisitForm({ ...visitForm, [e.target.name]: e.target.value });
   };
+
+  const handleEnquiryChange = (e) => {
+    setEnquiryForm({ ...enquiryForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEnquirySubmit = async (e) => {
+    e.preventDefault();
+    setEnquiryLoading(true);
+
+    try {
+      const response = await fetch(`${apiUrl}/bookings/enquiry`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+        },
+        body: JSON.stringify({
+          propertyId: id,
+          ...enquiryForm
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Enquiry sent successfully!");
+        setIsEnquiryModalOpen(false);
+        setEnquiryForm({
+          name: "",
+          email: "",
+          number: "",
+          city: "",
+          message: ""
+        });
+      } else {
+        toast.error(data.message || "Failed to send enquiry");
+      }
+    } catch (error) {
+      console.error("Error sending enquiry:", error);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setEnquiryLoading(false);
+    }
+  };
+
 
   const handleVisitSubmit = async (e) => {
     e.preventDefault();
@@ -56,6 +121,7 @@ export default function PropertyDetails() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
         },
         body: JSON.stringify({
           propertyId: id,
@@ -269,17 +335,23 @@ export default function PropertyDetails() {
 
               <div className="space-y-4">
                 {property.owner?.phone && (
-                  <button className="w-full flex items-center justify-center gap-2 py-3 border border-indigo-600 text-indigo-600 rounded-xl font-medium hover:bg-indigo-50 transition">
+                  <button 
+                    onClick={() => checkAuth(() => window.location.href = `tel:${property.owner.phone}`)}
+                    className="w-full flex items-center justify-center gap-2 py-3 border border-indigo-600 text-indigo-600 rounded-xl font-medium hover:bg-indigo-50 transition"
+                  >
                     <Phone size={18} /> Call Owner
                   </button>
                 )}
                 <button 
-                  onClick={() => setIsVisitModalOpen(true)}
+                  onClick={() => checkAuth(() => setIsVisitModalOpen(true))}
                   className="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 shadow-lg hover:shadow-xl transition"
                 >
                   <Clock size={18} /> Book A Visit
                 </button>
-                <button className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 shadow-lg hover:shadow-xl transition">
+                <button 
+                  onClick={() => checkAuth(() => setIsEnquiryModalOpen(true))}
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 shadow-lg hover:shadow-xl transition"
+                >
                   <Mail size={18} /> Send Enquiry
                 </button>
               </div>
@@ -404,6 +476,108 @@ export default function PropertyDetails() {
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     "Confirm Visit"
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Enquiry Modal */}
+      <AnimatePresence>
+        {isEnquiryModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+            >
+              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 className="text-xl font-bold text-gray-800">Send Enquiry</h3>
+                <button 
+                  onClick={() => setIsEnquiryModalOpen(false)}
+                  className="p-2 hover:bg-gray-200 rounded-full transition text-gray-500"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <form onSubmit={handleEnquirySubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={enquiryForm.name}
+                    onChange={handleEnquiryChange}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={enquiryForm.email}
+                    onChange={handleEnquiryChange}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="number"
+                    value={enquiryForm.number}
+                    onChange={handleEnquiryChange}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={enquiryForm.city}
+                    onChange={handleEnquiryChange}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+                    placeholder="Enter your city"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tell us about requirement</label>
+                  <textarea
+                    name="message"
+                    value={enquiryForm.message}
+                    onChange={handleEnquiryChange}
+                    rows="3"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition resize-none"
+                    placeholder="What kind of property are you looking for?"
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={enquiryLoading}
+                  className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg hover:shadow-xl transition disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+                >
+                  {enquiryLoading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    "Submit Enquiry"
                   )}
                 </button>
               </form>

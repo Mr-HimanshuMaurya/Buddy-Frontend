@@ -1,9 +1,35 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import { motion, AnimatePresence } from "framer-motion";
-import { User, Mail, Lock, Phone, ArrowRight, Loader2, Sparkles, HeartHandshake, ArrowLeft } from "lucide-react";
+import { User, Mail, Lock, Phone, ArrowRight, Loader2, Building2, ArrowLeft } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
+import LoginPageVideo from "../assets/LoginPageVideo.mp4";
+
+const InputField = ({ icon: Icon, type, name, value, onChange, placeholder, showPassToggle, onTogglePass }) => (
+  <div className="relative group">
+    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+      <Icon className="h-5 w-5 text-white/60 group-focus-within:text-cyan-300 transition-all duration-300" />
+    </div>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="block w-full pl-12 pr-10 py-4 bg-white/10 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all duration-300 backdrop-blur-sm"
+      placeholder={placeholder}
+      required
+    />
+    {showPassToggle !== undefined && (
+      <button
+        type="button"
+        onClick={onTogglePass}
+        className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/40 hover:text-white transition-colors z-10"
+      >
+        {showPassToggle ? "Hide" : "Show"}
+      </button>
+    )}
+  </div>
+);
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -45,14 +71,23 @@ export default function Login() {
       const response = await fetch(`${apiUrl}/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
+        body: JSON.stringify({
+          email: loginData.email.trim(),
+          password: loginData.password
+        }),
       });
       const data = await response.json();
 
-      if (response.ok && data.message === "Login successful") {
+      if (response.ok && data.success) {
         localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("userEmail", data.data?.user?.email || loginData.email);
+        localStorage.setItem("accessToken", data.data?.accessToken);
+        localStorage.setItem("refreshToken", data.data?.refreshToken);
+        localStorage.setItem("userEmail", data.data?.user?.email);
+        localStorage.setItem("userFirstName", data.data?.user?.firstname);
+        localStorage.setItem("userLastName", data.data?.user?.lastname);
+        localStorage.setItem("userPhone", data.data?.user?.phone);
         localStorage.setItem("userId", data.data?.user?._id);
+        localStorage.setItem("userRole", data.data?.user?.role);
         toast.success("Welcome back! Redirecting...");
         setTimeout(() => navigate("/"), 1000); 
       } else {
@@ -74,7 +109,14 @@ export default function Login() {
 
     setSignupLoading(true);
     try {
-      const payload = { ...signupData, role: "tenant" };
+      const payload = { 
+        ...signupData, 
+        firstname: signupData.firstname.trim(),
+        lastname: signupData.lastname.trim(),
+        email: signupData.email.trim(),
+        phone: signupData.phone.trim(),
+        role: "tenant" 
+      };
       const res = await fetch(`${apiUrl}/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,128 +139,81 @@ export default function Login() {
   };
 
   // --- UI Components ---
-  const InputField = ({ icon: Icon, type, name, value, onChange, placeholder, showPassToggle, onTogglePass }) => (
-    <div className="relative group">
-      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-        <Icon className="h-5 w-5 text-violet-400 group-focus-within:text-fuchsia-500 transition-colors duration-300" />
-      </div>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="block w-full pl-12 pr-10 py-4 bg-white/50 border-2 border-transparent focus:border-fuchsia-400 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:shadow-lg focus:shadow-fuchsia-500/20 transition-all duration-300"
-        placeholder={placeholder}
-        required
-      />
-      {showPassToggle !== undefined && (
-        <button
-          type="button"
-          onClick={onTogglePass}
-          className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-fuchsia-600 transition-colors"
-        >
-          {showPassToggle ? "Hide" : "Show"}
-        </button>
-      )}
-    </div>
-  );
+
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden bg-slate-50">
+    <div className="min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+
+      {/* Video Background */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src={LoginPageVideo} type="video/mp4" />
+        </video>
+        {/* Cinematic Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/40 backdrop-blur-[1px]"></div>
+      </div>
 
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className="absolute top-6 left-6 z-20 p-3 bg-white/40 hover:bg-white/60 backdrop-blur-md rounded-full text-slate-700 hover:text-fuchsia-600 transition-all shadow-sm border border-white/20 group"
+        className="absolute top-6 left-6 z-20 p-3 bg-white/5 hover:bg-white/10 backdrop-blur-md rounded-full text-white/80 hover:text-white transition-all shadow-lg border border-white/10 group overflow-hidden"
         title="Go Back"
       >
-        <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
+        <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform relative z-10" />
       </button>
 
-      {/* Dynamic Background with Blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50" />
-        
-        {/* Animated Blobs */}
-        <motion.div 
-          animate={{ 
-            x: [0, 100, 0], 
-            y: [0, -50, 0],
-            scale: [1, 1.2, 1] 
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-20 -left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
-        />
-        <motion.div 
-          animate={{ 
-            x: [0, -100, 0], 
-            y: [0, 100, 0],
-            scale: [1, 1.5, 1] 
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear", delay: 2 }}
-          className="absolute top-40 -right-20 w-96 h-96 bg-fuchsia-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
-        />
-        <motion.div 
-          animate={{ 
-            x: [0, 50, 0], 
-            y: [0, 50, 0],
-            scale: [1, 1.3, 1] 
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 5 }}
-          className="absolute -bottom-20 left-1/3 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
-        />
-      </div>
-
       {/* Main Card */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-[480px]"
-      >
-        <div className="bg-white/70 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2.5rem] border border-white p-2">
+      <div className="relative z-10 w-full max-w-[480px]">
+        <div className="bg-black/40 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] rounded-[2.5rem] border border-white/10 p-2 overflow-hidden relative">
           
+          {/* Decorative Gloss Reflection */}
+          <div className="absolute -top-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+
           {/* Header Section */}
-          <div className="px-8 pt-8 pb-4 text-center">
-             <motion.div 
-               initial={{ y: -20, opacity: 0 }}
-               animate={{ y: 0, opacity: 1 }}
-               transition={{ delay: 0.2 }}
-               className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white mb-6 shadow-xl shadow-fuchsia-500/30"
-             >
-                <HeartHandshake size={32} strokeWidth={1.5} />
-             </motion.div>
-             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600">
+          <div className="px-8 pt-8 pb-4 text-center relative z-10">
+             <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white mb-6 shadow-[0_0_40px_rgba(99,102,241,0.5)] ring-1 ring-white/50 relative group backdrop-blur-sm">
+                <div className="absolute inset-0 bg-white/20 rounded-3xl animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent rounded-3xl" />
+                <Building2 size={40} strokeWidth={1.5} className="relative z-10 drop-shadow-md transition-transform duration-300" />
+             </div>
+             <h1 className="text-4xl font-bold text-white drop-shadow-lg tracking-tight">
                Welcome
              </h1>
-             <p className="text-slate-500 mt-2 font-medium">Find your happy place.</p>
+             <p className="text-indigo-200 mt-2 font-medium tracking-wide">
+               Find your perfect stay.
+             </p>
           </div>
 
           {/* Toggle Switch */}
-          <div className="px-8 mb-6">
-            <div className="bg-slate-100/80 p-1.5 rounded-2xl flex relative">
-              <motion.div 
-                className="absolute top-1.5 bottom-1.5 bg-white rounded-xl shadow-sm"
-                initial={false}
-                animate={{ 
-                  left: isLogin ? "6px" : "50%", 
-                  width: "calc(50% - 9px)" 
+          <div className="px-8 mb-6 relative z-10">
+            <div className="bg-black/30 p-1.5 rounded-2xl flex relative backdrop-blur-md border border-white/5 shadow-inner">
+              <div 
+                className="absolute top-1.5 bottom-1.5 bg-white/15 rounded-xl shadow-lg border border-white/10 backdrop-blur-sm transition-all duration-300 ease-in-out"
+                style={{
+                  left: isLogin ? "6px" : "50%",
+                  width: "calc(50% - 9px)"
                 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
               <button
                 onClick={() => setIsLogin(true)}
-                className={`flex-1 py-3 text-sm font-bold rounded-xl relative z-10 transition-colors ${
-                  isLogin ? "text-slate-800" : "text-slate-500 hover:text-slate-700"
+                className={`flex-1 py-3 text-sm font-bold rounded-xl relative z-10 transition-all duration-300 ${
+                  isLogin ? "text-white" : "text-white/40 hover:text-white/70"
                 }`}
               >
                 Log In
               </button>
               <button
                 onClick={() => setIsLogin(false)}
-                className={`flex-1 py-3 text-sm font-bold rounded-xl relative z-10 transition-colors ${
-                  !isLogin ? "text-slate-800" : "text-slate-500 hover:text-slate-700"
+                className={`flex-1 py-3 text-sm font-bold rounded-xl relative z-10 transition-all duration-300 ${
+                  !isLogin ? "text-white" : "text-white/40 hover:text-white/70"
                 }`}
               >
                 Sign Up
@@ -227,121 +222,115 @@ export default function Login() {
           </div>
 
           {/* Form Area */}
-          <div className="px-8 pb-8">
-             <AnimatePresence mode="wait">
-                {isLogin ? (
-                  <motion.form
-                    key="login"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.3 }}
-                    onSubmit={handleLogin}
-                    className="space-y-4"
-                  >
-                    <InputField 
-                      icon={Mail} 
-                      type="email" 
-                      name="email" 
-                      value={loginData.email} 
-                      onChange={handleLoginChange} 
-                      placeholder="Email Address" 
-                    />
-                    <InputField 
-                      icon={Lock} 
-                      type={showLoginPassword ? "text" : "password"} 
-                      name="password" 
-                      value={loginData.password} 
-                      onChange={handleLoginChange} 
-                      placeholder="Password"
-                      showPassToggle={showLoginPassword}
-                      onTogglePass={() => setShowLoginPassword(!showLoginPassword)}
-                    />
+          <div className="px-8 pb-8 relative z-10">
+            {isLogin ? (
+              <form onSubmit={handleLogin} className="space-y-4">
+                <InputField 
+                  icon={Mail} 
+                  type="email" 
+                  name="email" 
+                  value={loginData.email} 
+                  onChange={handleLoginChange} 
+                  placeholder="Email Address" 
+                />
+                <InputField 
+                  icon={Lock} 
+                  type={showLoginPassword ? "text" : "password"} 
+                  name="password" 
+                  value={loginData.password} 
+                  onChange={handleLoginChange} 
+                  placeholder="Password"
+                  showPassToggle={showLoginPassword}
+                  onTogglePass={() => setShowLoginPassword(!showLoginPassword)}
+                />
 
-                    <button
-                      type="submit"
-                      disabled={loginLoading}
-                      className="w-full py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-bold rounded-2xl shadow-lg shadow-fuchsia-500/25 transition-all transform hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {loginLoading ? <Loader2 className="animate-spin" /> : <>Log In <ArrowRight size={20} /></>}
-                    </button>
-                  </motion.form>
-                ) : (
-                  <motion.form
-                    key="signup"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                    onSubmit={handleSignup}
-                    className="space-y-3"
-                  >
-                    <div className="grid grid-cols-2 gap-3">
-                      <InputField 
-                        icon={User} 
-                        type="text" 
-                        name="firstname" 
-                        value={signupData.firstname} 
-                        onChange={handleSignupChange} 
-                        placeholder="First Name" 
-                      />
-                      <InputField 
-                        icon={User} 
-                        type="text" 
-                        name="lastname" 
-                        value={signupData.lastname} 
-                        onChange={handleSignupChange} 
-                        placeholder="Last Name" 
-                      />
-                    </div>
-                    <InputField 
-                      icon={Mail} 
-                      type="email" 
-                      name="email" 
-                      value={signupData.email} 
-                      onChange={handleSignupChange} 
-                      placeholder="Email Address" 
-                    />
-                    <InputField 
-                      icon={Phone} 
-                      type="text" 
-                      name="phone" 
-                      value={signupData.phone} 
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "");
-                        if (val.length <= 10) setSignupData({ ...signupData, phone: val });
-                      }} 
-                      placeholder="Phone Number" 
-                    />
-                    <InputField 
-                      icon={Lock} 
-                      type={showSignupPassword ? "text" : "password"} 
-                      name="password" 
-                      value={signupData.password} 
-                      onChange={handleSignupChange} 
-                      placeholder="Create Password"
-                      showPassToggle={showSignupPassword}
-                      onTogglePass={() => setShowSignupPassword(!showSignupPassword)}
-                    />
+                <div className="flex justify-end">
+                  <button type="button" className="text-sm text-indigo-300 hover:text-white transition-colors">
+                    Forgot Password?
+                  </button>
+                </div>
 
-                    <button
-                      type="submit"
-                      disabled={signupLoading}
-                      className="mt-2 w-full py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-bold rounded-2xl shadow-lg shadow-fuchsia-500/25 transition-all transform hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {signupLoading ? <Loader2 className="animate-spin" /> : <>Join <Sparkles size={20} /></>}
-                    </button>
-                  </motion.form>
-                )}
-             </AnimatePresence>
+                <button
+                  type="submit"
+                  disabled={loginLoading}
+                  className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center gap-2 border border-white/20 relative overflow-hidden group hover:scale-[1.02]"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  <span className="relative flex items-center gap-2">
+                    {loginLoading ? <Loader2 className="animate-spin" /> : <>Log In <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" /></>}
+                  </span>
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleSignup} className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <InputField 
+                    icon={User} 
+                    type="text" 
+                    name="firstname" 
+                    value={signupData.firstname} 
+                    onChange={handleSignupChange} 
+                    placeholder="First Name" 
+                  />
+                  <InputField 
+                    icon={User} 
+                    type="text" 
+                    name="lastname" 
+                    value={signupData.lastname} 
+                    onChange={handleSignupChange} 
+                    placeholder="Last Name" 
+                  />
+                </div>
+                <InputField 
+                  icon={Mail} 
+                  type="email" 
+                  name="email" 
+                  value={signupData.email} 
+                  onChange={handleSignupChange} 
+                  placeholder="Email Address" 
+                />
+                <InputField 
+                  icon={Phone} 
+                  type="text" 
+                  name="phone" 
+                  value={signupData.phone} 
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "");
+                    if (val.length <= 10) setSignupData({ ...signupData, phone: val });
+                  }} 
+                  placeholder="Phone Number" 
+                />
+                <InputField 
+                  icon={Lock} 
+                  type={showSignupPassword ? "text" : "password"} 
+                  name="password" 
+                  value={signupData.password} 
+                  onChange={handleSignupChange} 
+                  placeholder="Create Password"
+                  showPassToggle={showSignupPassword}
+                  onTogglePass={() => setShowSignupPassword(!showSignupPassword)}
+                />
+
+                <button
+                  type="submit"
+                  disabled={signupLoading}
+                  className="mt-2 w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center gap-2 border border-white/20 relative overflow-hidden group hover:scale-[1.02]"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  <span className="relative flex items-center gap-2">
+                    {signupLoading ? <Loader2 className="animate-spin" /> : <>Sign Up <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" /></>}
+                  </span>
+                </button>
+              </form>
+            )}
           </div>
         </div>
         
         {/* Footer */}
-        <p className="text-center text-slate-400 text-xs mt-8 font-medium">
+        <p className="text-center text-white/30 text-xs mt-8 font-medium drop-shadow-md">
           &copy; {new Date().getFullYear()} All rights reserved.
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }
