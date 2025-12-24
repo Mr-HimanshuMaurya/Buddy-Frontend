@@ -83,7 +83,7 @@ export default function PgDashboard() {
   const fetchProperties = async (isManual = false) => {
     if (isManual) setIsRefreshing(true);
     try {
-      const response = await fetch(`${apiUrl}/properties`);
+      const response = await fetch(`${apiUrl}/properties/owner/${userId}`);
       const data = await response.json();
 
       if (response.ok) {

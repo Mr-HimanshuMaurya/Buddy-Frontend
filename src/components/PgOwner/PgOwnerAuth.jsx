@@ -26,12 +26,48 @@ export default function PgOwnerAuth() {
     phone: "",
     password: "",
   });
-  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  
+  // Loading & Password Visibility States
   const [signupLoading, setSignupLoading] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  
+  // OTP State
+  const [otp, setOtp] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
 
   // Handlers
   const handleLoginChange = (e) => setLoginData({ ...loginData, [e.target.name]: e.target.value });
   const handleSignupChange = (e) => setSignupData({ ...signupData, [e.target.name]: e.target.value });
+
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    setOtpLoading(true);
+    try {
+      const res = await fetch(`${apiUrl}/users/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: signupData.email, otp }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.message || "OTP Verification failed");
+      } else {
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userId", data?.data?.user?._id || "");
+        localStorage.setItem("userEmail", data?.data?.user?.email || "");
+        localStorage.setItem("userRole", data?.data?.user?.role);
+        toast.success("Verified & Logged in!");
+        setShowOtpModal(false);
+        setTimeout(() => navigate("/pg-owner/dashboard"), 1000);
+      }
+    } catch (err) {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -78,8 +114,8 @@ export default function PgOwnerAuth() {
       if (!res.ok) {
         toast.error(data.message || "Signup failed");
       } else {
-        toast.success("Account created successfully! Please login.");
-        setIsLogin(true);
+        toast.success("OTP Sent! Please check your email.");
+        setShowOtpModal(true);
       }
     } catch (err) {
       toast.error("Network error. Please try again.");
@@ -92,6 +128,50 @@ export default function PgOwnerAuth() {
         <div className="min-h-screen flex bg-slate-50 font-sans pt-18">
 
         <ToastContainer position="top-right" autoClose={3000} />
+      
+      {/* OTP Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full relative">
+            <button 
+              onClick={() => setShowOtpModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+            <h3 className="text-xl font-bold text-center mb-4">Verify Email</h3>
+            <p className="text-center text-sm text-gray-600 mb-6">
+              Enter the 6-digit code sent to <br/><strong>{signupData.email}</strong>
+            </p>
+            
+            <form onSubmit={handleVerifyOTP} className="space-y-6">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <ShieldCheck size={20} />
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-slate-50 focus:bg-white tracking-widest text-center text-lg"
+                  placeholder="123456"
+                  maxLength={6}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={otpLoading}
+                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {otpLoading ? "Verifying..." : "Verify OTP"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Left Side - Form Section */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-20 relative bg-white">
         <div className="w-full max-w-md space-y-8">
