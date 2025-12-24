@@ -19,7 +19,8 @@ import PgOwnerProtectedRoute from "./components/PgOwner/PgOwnerProtectedRoute.js
 import PgOwnerAuth from "./components/PgOwner/PgOwnerAuth.jsx";
 import PropertyDetails from "./components/properties/PropertyDetails.jsx";
 import PageNotFound from "./components/PageNotFound.jsx";
-import AdminDashboard from "./components/Admin.jsx/AdminDashboard.jsx"
+import ProfilePage from "./pages/ProfilePage.jsx";
+
 
 function App() {
   const location = useLocation();
@@ -50,6 +51,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/enquiry" element={<EnquiryForm />} />
         <Route path="/pg-owner/dashboard" element={<PgDashboard/>}/>
         <Route path="/pg-owner-login" element={<PgOwnerAuth />} />

@@ -60,6 +60,13 @@ export default function Login() {
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [signupLoading, setSignupLoading] = useState(false);
 
+  // OTP State
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpEmail, setOtpEmail] = useState("");
+  const [isVerifyingSignup, setIsVerifyingSignup] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+
   // --- Handlers ---
   const handleLoginChange = (e) => setLoginData({ ...loginData, [e.target.name]: e.target.value });
   const handleSignupChange = (e) => setSignupData({ ...signupData, [e.target.name]: e.target.value });
@@ -79,6 +86,15 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        if (data.data?.requiresOTP) {
+          setOtpEmail(loginData.email);
+          setIsVerifyingSignup(false);
+          setShowOtpModal(true);
+          toast.info("OTP sent! Please verify to continue.");
+          setLoginLoading(false);
+          return;
+        }
+
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("accessToken", data.data?.accessToken);
         localStorage.setItem("refreshToken", data.data?.refreshToken);
@@ -127,14 +143,50 @@ export default function Login() {
       if (!res.ok) {
         toast.error(data.message || "Signup failed");
       } else {
-        toast.success("Account created successfully! Please login.");
-        setIsLogin(true);
-        setSignupData({ firstname: "", lastname: "", email: "", phone: "", password: "" });
+        setOtpEmail(signupData.email);
+        setIsVerifyingSignup(true);
+        setShowOtpModal(true);
+        toast.success("Account created! Please enter OTP sent to email.");
       }
     } catch (err) {
       toast.error("Network error. Please try again.");
     } finally {
       setSignupLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setOtpLoading(true);
+    try {
+      const endpoint = isVerifyingSignup ? "/users/verify-otp" : "/users/verify-login-otp";
+      const response = await fetch(`${apiUrl}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: otpEmail, otp }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("accessToken", data.data?.accessToken);
+        localStorage.setItem("refreshToken", data.data?.refreshToken);
+        localStorage.setItem("userEmail", data.data?.user?.email);
+        localStorage.setItem("userFirstName", data.data?.user?.firstname);
+        localStorage.setItem("userLastName", data.data?.user?.lastname);
+        localStorage.setItem("userPhone", data.data?.user?.phone);
+        localStorage.setItem("userId", data.data?.user?._id);
+        localStorage.setItem("userRole", data.data?.user?.role);
+        
+        toast.success(isVerifyingSignup ? "Email verified! Welcome!" : "Login successful!");
+        setTimeout(() => navigate("/"), 1000);
+      } else {
+        toast.error(data.message || "Invalid OTP");
+      }
+    } catch (error) {
+      toast.error("Network error during verification.");
+    } finally {
+      setOtpLoading(false);
     }
   };
 
@@ -331,6 +383,52 @@ export default function Login() {
           &copy; {new Date().getFullYear()} All rights reserved.
         </p>
       </div>
+
+      {/* OTP Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+            
+            <h2 className="text-2xl font-bold text-white mb-2 text-center">Verification Required</h2>
+            <p className="text-white/60 text-center mb-6 text-sm">
+              Please enter the OTP sent to <span className="text-white font-medium">{otpEmail}</span>
+            </p>
+
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Lock className="h-5 w-5 text-white/60" />
+                </div>
+                <input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all text-center text-lg tracking-widest"
+                  placeholder="Enter OTP"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={otpLoading}
+                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+              >
+                {otpLoading ? <Loader2 className="animate-spin" /> : "Verify & Continue"}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setShowOtpModal(false)}
+                className="w-full py-2 text-white/40 hover:text-white transition-colors text-sm"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

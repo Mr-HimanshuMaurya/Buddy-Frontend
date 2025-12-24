@@ -172,7 +172,7 @@ const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsProfileModalOpen(true)}
+                  onClick={() => navigate('/profile')}
                   className="flex items-center gap-3 pl-2 pr-4 py-1.5 bg-white border border-slate-200 hover:border-indigo-200 rounded-full shadow-sm hover:shadow-md transition-all group"
                 >
                   <div className="w-9 h-9 bg-gradient-to-tr from-indigo-100 to-violet-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm shadow-inner group-hover:scale-110 transition-transform">
@@ -262,7 +262,7 @@ const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
                   <button
                     onClick={() => {
                       setIsOpen(false);
-                      setIsProfileModalOpen(true);
+                      navigate('/profile');
                     }}
                     className="flex items-center justify-center gap-2 w-full p-4 rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold shadow-sm active:scale-95 transition-transform"
                   >
