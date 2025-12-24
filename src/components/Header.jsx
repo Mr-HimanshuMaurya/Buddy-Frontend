@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Home, Info, Building2, Phone, UserCircle, LogIn, ChevronRight, LogOut, Mail, Pencil, User } from "lucide-react";
+import { Menu, X, Home, Info, Building2, Phone, UserCircle, LogIn, ChevronRight } from "lucide-react";
 import logo from "../assets/PG.png";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,46 +43,7 @@ export default function Header() {
     };
 
     checkAuth();
-    // Listen for custom event or storage event if needed, but simplistic check works for now
-  }, [location.pathname]); // Re-check on route change (e.g. coming back from login)
-
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    setProfileLoading(true);
-    const userId = localStorage.getItem("userId");
-    
-    try {
-      const response = await fetch(`${apiUrl}/users/${userId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
-      });
-      const data = await response.json();
-      
-      if (response.ok) {
-        // Update local storage
-        localStorage.setItem("userFirstName", userData.firstname);
-        localStorage.setItem("userLastName", userData.lastname);
-        localStorage.setItem("userEmail", userData.email);
-        localStorage.setItem("userPhone", userData.phone);
-        
-        setIsEditingProfile(false);
-      } else {
-        console.error("Failed to update profile:", data.message);
-      }
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    } finally {
-      setProfileLoading(false);
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.clear();
-    setUserData(null);
-    setIsProfileModalOpen(false);
-    navigate("/");
-  };
+  }, [location.pathname]);
 
   const navLinks = [
     { name: "Home", path: "/", icon: Home },
@@ -155,7 +115,7 @@ export default function Header() {
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsProfileModalOpen(true)}
+                  onClick={() => navigate('/profile')}
                   className="flex items-center gap-3 pl-2 pr-4 py-1.5 bg-white border border-slate-200 hover:border-indigo-200 rounded-full shadow-sm hover:shadow-md transition-all group"
                 >
                   <div className="w-9 h-9 bg-gradient-to-tr from-indigo-100 to-violet-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm shadow-inner group-hover:scale-110 transition-transform">
@@ -245,7 +205,7 @@ export default function Header() {
                   <button
                     onClick={() => {
                       setIsOpen(false);
-                      setIsProfileModalOpen(true);
+                      navigate('/profile');
                     }}
                     className="flex items-center justify-center gap-2 w-full p-4 rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold shadow-sm active:scale-95 transition-transform"
                   >
@@ -267,169 +227,6 @@ export default function Header() {
               </div>
             </motion.div>
           </>
-        )}
-      </AnimatePresence>
-
-      {/* Profile Modal */}
-      <AnimatePresence>
-        {isProfileModalOpen && userData && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsProfileModalOpen(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden relative z-10 border border-white/50"
-            >
-              {/* Modal Header Decor */}
-              <div className="h-32 bg-gradient-to-r from-indigo-400 to-violet-400 relative overflow-hidden">
-                 <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                 <button 
-                  onClick={() => {
-                    setIsProfileModalOpen(false);
-                    setIsEditingProfile(false);
-                  }} 
-                  className="absolute top-4 right-4 text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-full transition backdrop-blur-sm"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="px-8 pb-8 -mt-12 relative">
-                <div className="flex flex-col items-center mb-6">
-                   <motion.div 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 to-violet-600 text-4xl font-bold mb-4 shadow-xl ring-4 ring-violet-600 relative z-10"
-                   >
-                     {userData.firstname?.[0]?.toUpperCase() || "U"}{userData.lastname?.[0]?.toUpperCase()}
-                   </motion.div>
-                   
-                   {!isEditingProfile && (
-                     <div className="text-center">
-                      <h2 className="text-2xl font-bold text-slate-800">{userData.firstname} {userData.lastname}</h2>
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full mt-2 border border-indigo-100">
-                        <User size={12} /> {userData.role === 'owner' ? 'PG Owner' : 'Tenant'}
-                      </div>
-                     </div>
-                   )}
-                </div>
-
-                 {isEditingProfile ? (
-                  <form onSubmit={handleUpdateProfile} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">First Name</label>
-                        <input
-                          type="text"
-                          value={userData.firstname}
-                          onChange={(e) => setUserData({...userData, firstname: e.target.value})}
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium transition-all"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Last Name</label>
-                        <input
-                          type="text"
-                          value={userData.lastname}
-                          onChange={(e) => setUserData({...userData, lastname: e.target.value})}
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium transition-all"
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Email Address</label>
-                      <input
-                        type="email"
-                        value={userData.email}
-                        onChange={(e) => setUserData({...userData, email: e.target.value})}
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium transition-all"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Phone Number</label>
-                      <input
-                        type="tel"
-                        value={userData.phone}
-                        onChange={(e) => setUserData({...userData, phone: e.target.value})}
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium transition-all"
-                        required
-                      />
-                    </div>
-
-                    <div className="flex gap-3 mt-6">
-                      <button
-                        type="button"
-                        onClick={() => setIsEditingProfile(false)}
-                        className="flex-1 py-3 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition text-sm"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={profileLoading}
-                        className="flex-1 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all text-sm flex items-center justify-center gap-2"
-                      >
-                        {profileLoading ? "Saving..." : <><Save size={18} /> Save Changes</>}
-                      </button>
-                    </div>
-                  </form>
-                 ) : (
-                   <div className="space-y-6">
-                     <div className="space-y-4">
-                       <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-indigo-100 transition-colors">
-                         <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-indigo-500 shadow-sm group-hover:scale-110 transition-transform">
-                           <Mail size={20} />
-                         </div>
-                         <div className="flex-1">
-                           <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Email Address</p>
-                           <p className="text-sm text-slate-700 font-semibold break-all">{userData.email}</p>
-                         </div>
-                       </div>
-                       
-                       {userData.phone && (
-                         <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-indigo-100 transition-colors">
-                           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-indigo-500 shadow-sm group-hover:scale-110 transition-transform">
-                             <Phone size={20} />
-                           </div>
-                           <div className="flex-1">
-                             <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Phone Number</p>
-                             <p className="text-sm text-slate-700 font-semibold">{userData.phone}</p>
-                           </div>
-                         </div>
-                       )}
-                     </div>
-
-                     <div className="grid grid-cols-2 gap-3 pt-2">
-                       <button 
-                         onClick={() => setIsEditingProfile(true)}
-                         className="flex justify-center items-center gap-2 py-3 bg-indigo-50 text-indigo-600 font-bold rounded-xl hover:bg-indigo-100 transition text-sm"
-                       >
-                         <Pencil size={18} /> Edit Profile
-                       </button>
-                       <button
-                         onClick={handleLogout}
-                         className="flex justify-center items-center gap-2 py-3 bg-rose-50 text-rose-600 font-bold rounded-xl hover:bg-rose-100 transition text-sm"
-                       >
-                         <LogOut size={18} /> Logout
-                       </button>
-                     </div>
-                   </div>
-                 )}
-              </div>
-            </motion.div>
-          </div>
         )}
       </AnimatePresence>
     </>
