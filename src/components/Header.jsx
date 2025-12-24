@@ -1,13 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Home, Info, Building2, Phone, UserCircle, LogIn, ChevronRight, LogOut, Mail, Pencil, User } from "lucide-react";
+import {
+  Menu, X, Home, Info, Building2, Phone, UserCircle,
+  LogIn, ChevronRight, LogOut, Mail, Pencil, User, Save
+} from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 import logo from "../assets/PG.png";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+const [profileLoading, setProfileLoading] = useState(false);
+
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
+
+
+
   const [userData, setUserData] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -82,6 +96,7 @@ export default function Header() {
     localStorage.clear();
     setUserData(null);
     setIsProfileModalOpen(false);
+    toast.success("Logged out successfully");
     navigate("/");
   };
 
@@ -95,6 +110,8 @@ export default function Header() {
 
   return (
     <>
+    <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -411,16 +428,16 @@ export default function Header() {
                        )}
                      </div>
 
-                     <div className="grid grid-cols-2 gap-3 pt-2">
-                       <button 
+                     <div className="grid grid-cols-1 gap-3 pt-2">
+                       {/* <button 
                          onClick={() => setIsEditingProfile(true)}
                          className="flex justify-center items-center gap-2 py-3 bg-indigo-50 text-indigo-600 font-bold rounded-xl hover:bg-indigo-100 transition text-sm"
                        >
                          <Pencil size={18} /> Edit Profile
-                       </button>
+                       </button> */}
                        <button
                          onClick={handleLogout}
-                         className="flex justify-center items-center gap-2 py-3 bg-rose-50 text-rose-600 font-bold rounded-xl hover:bg-rose-100 transition text-sm"
+                         className="flex justify-center items-center gap-2 py-3 bg-rose-200 text-rose-600 font-bold rounded-xl hover:bg-rose-300 transition text-sm"
                        >
                          <LogOut size={18} /> Logout
                        </button>
