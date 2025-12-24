@@ -9,7 +9,6 @@ import Residencial from "./components/properties/Residencial.jsx";
 import ROI from "./components/properties/ROI.jsx";
 import Contact from "./components/contact.jsx";
 import Login from "./components/Login.jsx";
-import AdminDashboard from "./components/AdminDashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { Routes, Route, useLocation } from "react-router-dom";
 import EnquiryForm from "./components/ui/enquiry.jsx";
@@ -20,7 +19,7 @@ import PgOwnerProtectedRoute from "./components/PgOwner/PgOwnerProtectedRoute.js
 import PgOwnerAuth from "./components/PgOwner/PgOwnerAuth.jsx";
 import PropertyDetails from "./components/properties/PropertyDetails.jsx";
 import PageNotFound from "./components/PageNotFound.jsx";
-
+import AdminDashboard from "./components/Admin.jsx/AdminDashboard.jsx"
 
 function App() {
   const location = useLocation();
@@ -58,14 +57,9 @@ function App() {
         <Route path="/pg-owner/properties/:id" element={<PropertyDetails />} />
         <Route path="/properties/:id" element={<PropertyDetails />} />
 
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+
         <Route path="*" element={<PageNotFound />} />
       </Routes>
       {!hideChrome && (
