@@ -24,6 +24,7 @@ import AdminDashboard from "./components/Admin/AdminDashboard.jsx"
 import AboutProperties from "./components/Admin/AboutProperties.jsx";
 import AboutPgOwners from "./components/Admin/AboutPgOwners.jsx";
 import AboutUsers from "./components/Admin/AboutUsers.jsx";
+import AdminProtectedRoute from "./components/Admin/AdminProtectedRoute.jsx";
 
 
 function App() {
@@ -63,10 +64,10 @@ function App() {
         <Route path="/pg-owner/properties/:id" element={<PropertyDetails />} />
         <Route path="/properties/:id" element={<PropertyDetails />} />
 
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/about-property" element={<AboutProperties />} />
-        <Route path="/admin/about-pgowner" element={<AboutPgOwners />} />
-        <Route path="/admin/about-user" element={<AboutUsers />} />
+        <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+        <Route path="/admin/about-property" element={<AdminProtectedRoute><AboutProperties /></AdminProtectedRoute>} />
+        <Route path="/admin/about-pgowner" element={<AdminProtectedRoute><AboutPgOwners /></AdminProtectedRoute>} />
+        <Route path="/admin/about-user" element={<AdminProtectedRoute><AboutUsers /></AdminProtectedRoute>} />
 
 
         <Route path="*" element={<PageNotFound />} />

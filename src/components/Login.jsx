@@ -67,6 +67,16 @@ export default function Login() {
   const [isVerifyingSignup, setIsVerifyingSignup] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
+  // Forgot Password State
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [showForgotPasswordOTP, setShowForgotPasswordOTP] = useState(false);
+  const [forgotPasswordOTP, setForgotPasswordOTP] = useState("");
+  const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+
   // --- Handlers ---
   const handleLoginChange = (e) => setLoginData({ ...loginData, [e.target.name]: e.target.value });
   const handleSignupChange = (e) => setSignupData({ ...signupData, [e.target.name]: e.target.value });
@@ -86,11 +96,38 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Always show OTP modal after login - user must verify OTP to login
-        setOtpEmail(loginData.email.trim());
-        setIsVerifyingSignup(false);
-        setShowOtpModal(true);
-        toast.info(data.message || "OTP sent! Please verify to continue.");
+        // Check if user needs verification (not verified)
+        if (data.data?.requiresVerification) {
+          // User is not verified, show OTP modal
+          setOtpEmail(loginData.email.trim());
+          setIsVerifyingSignup(false);
+          setShowOtpModal(true);
+          toast.info(data.message || "OTP sent! Please verify to continue.");
+        } else {
+          // User is verified, login directly
+          localStorage.setItem("isAuthenticated", "true");
+          localStorage.setItem("accessToken", data.data?.accessToken);
+          localStorage.setItem("refreshToken", data.data?.refreshToken);
+          localStorage.setItem("userEmail", data.data?.user?.email);
+          localStorage.setItem("userFirstName", data.data?.user?.firstname);
+          localStorage.setItem("userLastName", data.data?.user?.lastname);
+          localStorage.setItem("userPhone", data.data?.user?.phone);
+          localStorage.setItem("userId", data.data?.user?._id);
+          localStorage.setItem("userRole", data.data?.user?.role);
+          
+          // Redirect based on role
+          const userRole = data.data?.user?.role;
+          let redirectPath = "/";
+          
+          if (userRole === "admin") {
+            redirectPath = "/admin/dashboard";
+          } else if (userRole === "owner") {
+            redirectPath = "/pg-owner/dashboard";
+          }
+          
+          toast.success("Welcome back! Redirecting...");
+          setTimeout(() => navigate(redirectPath), 1000);
+        }
       } else {
         toast.error(data.message || "Invalid credentials");
       }
@@ -163,8 +200,18 @@ export default function Login() {
         localStorage.setItem("userId", data.data?.user?._id);
         localStorage.setItem("userRole", data.data?.user?.role);
         
+        // Redirect based on role
+        const userRole = data.data?.user?.role;
+        let redirectPath = "/";
+        
+        if (userRole === "admin") {
+          redirectPath = "/admin/dashboard";
+        } else if (userRole === "owner") {
+          redirectPath = "/pg-owner/dashboard";
+        }
+        
         toast.success(isVerifyingSignup ? "Email verified! Welcome!" : "Login successful!");
-        setTimeout(() => navigate("/"), 1000);
+        setTimeout(() => navigate(redirectPath), 1000);
       } else {
         toast.error(data.message || "Invalid OTP");
       }
@@ -172,6 +219,106 @@ export default function Login() {
       toast.error("Network error during verification.");
     } finally {
       setOtpLoading(false);
+    }
+  };
+
+  // Forgot Password Handlers
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setForgotPasswordLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/users/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotPasswordEmail.trim() }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(data.message || "OTP sent to your email!");
+        setShowForgotPasswordModal(false);
+        setShowForgotPasswordOTP(true);
+      } else {
+        toast.error(data.message || "Failed to send OTP");
+      }
+    } catch (error) {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setForgotPasswordLoading(false);
+    }
+  };
+
+  const handleForgotPasswordOTPVerify = async (e) => {
+    e.preventDefault();
+    setForgotPasswordLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/users/verify-forgot-password-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotPasswordEmail.trim(), otp: forgotPasswordOTP }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(data.message || "OTP verified!");
+        setShowForgotPasswordOTP(false);
+        setShowNewPasswordForm(true);
+      } else {
+        toast.error(data.message || "Invalid OTP");
+      }
+    } catch (error) {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setForgotPasswordLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
+    setForgotPasswordLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/users/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: forgotPasswordEmail.trim(),
+          otp: forgotPasswordOTP,
+          newPassword: newPassword,
+        }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(data.message || "Password reset successfully!");
+        // Reset all states
+        setShowNewPasswordForm(false);
+        setShowForgotPasswordModal(false);
+        setForgotPasswordEmail("");
+        setForgotPasswordOTP("");
+        setNewPassword("");
+        setConfirmPassword("");
+        // Optionally redirect to login
+        setTimeout(() => {
+          toast.info("Please login with your new password");
+        }, 2000);
+      } else {
+        toast.error(data.message || "Failed to reset password");
+      }
+    } catch (error) {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setForgotPasswordLoading(false);
     }
   };
 
@@ -282,7 +429,11 @@ export default function Login() {
                 />
 
                 <div className="flex justify-end">
-                  <button type="button" className="text-sm text-indigo-300 hover:text-white transition-colors">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowForgotPasswordModal(true)}
+                    className="text-sm text-indigo-300 hover:text-white transition-colors"
+                  >
                     Forgot Password?
                   </button>
                 </div>
@@ -408,6 +559,170 @@ export default function Login() {
                 onClick={() => {
                   setShowOtpModal(false);
                   setOtp(""); // Clear OTP when canceling
+                }}
+                className="w-full py-2 text-white/40 hover:text-white transition-colors text-sm"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Forgot Password Email Modal */}
+      {showForgotPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+            
+            <h2 className="text-2xl font-bold text-white mb-2 text-center">Reset Password</h2>
+            <p className="text-white/60 text-center mb-6 text-sm">
+              Enter your email address to receive a verification code
+            </p>
+
+            <form onSubmit={handleForgotPasswordSubmit} className="space-y-6">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Mail className="h-5 w-5 text-white/60" />
+                </div>
+                <input
+                  type="email"
+                  value={forgotPasswordEmail}
+                  onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                  className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={forgotPasswordLoading}
+                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+              >
+                {forgotPasswordLoading ? <Loader2 className="animate-spin" /> : "Send OTP"}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForgotPasswordModal(false);
+                  setForgotPasswordEmail("");
+                }}
+                className="w-full py-2 text-white/40 hover:text-white transition-colors text-sm"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Forgot Password OTP Modal */}
+      {showForgotPasswordOTP && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+            
+            <h2 className="text-2xl font-bold text-white mb-2 text-center">Verify OTP</h2>
+            <p className="text-white/60 text-center mb-6 text-sm">
+              Enter the OTP sent to <span className="text-white font-medium">{forgotPasswordEmail}</span>
+            </p>
+
+            <form onSubmit={handleForgotPasswordOTPVerify} className="space-y-6">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Lock className="h-5 w-5 text-white/60" />
+                </div>
+                <input
+                  type="text"
+                  value={forgotPasswordOTP}
+                  onChange={(e) => setForgotPasswordOTP(e.target.value)}
+                  className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all text-center text-lg tracking-widest"
+                  placeholder="Enter OTP"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={forgotPasswordLoading}
+                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+              >
+                {forgotPasswordLoading ? <Loader2 className="animate-spin" /> : "Verify OTP"}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForgotPasswordOTP(false);
+                  setForgotPasswordOTP("");
+                }}
+                className="w-full py-2 text-white/40 hover:text-white transition-colors text-sm"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* New Password Form Modal */}
+      {showNewPasswordForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+            
+            <h2 className="text-2xl font-bold text-white mb-2 text-center">Set New Password</h2>
+            <p className="text-white/60 text-center mb-6 text-sm">
+              Enter your new password
+            </p>
+
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Lock className="h-5 w-5 text-white/60" />
+                </div>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all"
+                  placeholder="New Password"
+                  required
+                  minLength={8}
+                />
+              </div>
+
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Lock className="h-5 w-5 text-white/60" />
+                </div>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all"
+                  placeholder="Confirm New Password"
+                  required
+                  minLength={8}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={forgotPasswordLoading}
+                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+              >
+                {forgotPasswordLoading ? <Loader2 className="animate-spin" /> : "Reset Password"}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewPasswordForm(false);
+                  setNewPassword("");
+                  setConfirmPassword("");
                 }}
                 className="w-full py-2 text-white/40 hover:text-white transition-colors text-sm"
               >
