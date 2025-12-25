@@ -138,9 +138,7 @@ const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
                   className="h-10 w-10 object-contain relative z-10 transform group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <span className={`text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600 ${scrolled ? 'hidden md:block' : 'block'}`}>
-                Buddy
-              </span>
+             
             </Link>
 
             {/* ===== Desktop Navigation ===== */}

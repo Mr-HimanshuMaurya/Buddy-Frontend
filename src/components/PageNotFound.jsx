@@ -26,12 +26,7 @@ export default function PageNotFound() {
             Go to Home
           </Link>
           
-          <Link 
-            to="/pg-owner/dashboard" 
-            className="block w-full py-3 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200"
-          >
-            Go to Dashboard (PG Owner)
-          </Link>
+         
         </div>
       </div>
     </div>

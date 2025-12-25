@@ -20,6 +20,10 @@ import PgOwnerAuth from "./components/PgOwner/PgOwnerAuth.jsx";
 import PropertyDetails from "./components/properties/PropertyDetails.jsx";
 import PageNotFound from "./components/PageNotFound.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import AdminDashboard from "./components/Admin/AdminDashboard.jsx"
+import AboutProperties from "./components/Admin/AboutProperties.jsx";
+import AboutPgOwners from "./components/Admin/AboutPgOwners.jsx";
+import AboutUsers from "./components/Admin/AboutUsers.jsx";
 
 
 function App() {
@@ -60,6 +64,9 @@ function App() {
         <Route path="/properties/:id" element={<PropertyDetails />} />
 
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/about-property" element={<AboutProperties />} />
+        <Route path="/admin/about-pgowner" element={<AboutPgOwners />} />
+        <Route path="/admin/about-user" element={<AboutUsers />} />
 
 
         <Route path="*" element={<PageNotFound />} />

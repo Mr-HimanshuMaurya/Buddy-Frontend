@@ -36,6 +36,8 @@ export default function PgOwnerAuth() {
   // OTP State
   const [otp, setOtp] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
+  const [otpEmail, setOtpEmail] = useState("");
+  const [isVerifyingSignup, setIsVerifyingSignup] = useState(false);
 
   // Handlers
   const handleLoginChange = (e) => setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -45,21 +47,35 @@ export default function PgOwnerAuth() {
     e.preventDefault();
     setOtpLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/users/verify-otp`, {
+      // Use verify-otp for signup, verify-login-otp for login
+      const endpoint = isVerifyingSignup ? "/users/verify-otp" : "/users/verify-login-otp";
+      const emailToUse = isVerifyingSignup ? signupData.email : otpEmail || loginData.email;
+      
+      const res = await fetch(`${apiUrl}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: signupData.email, otp }),
+        body: JSON.stringify({ email: emailToUse, otp }),
       });
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.message || "OTP Verification failed");
       } else {
+        // Check if owner role for login flow
+        if (!isVerifyingSignup && data?.data?.user?.role !== "owner") {
+          toast.error("Only PG Owners can login here");
+          setShowOtpModal(false);
+          return;
+        }
+        
         localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("accessToken", data?.data?.accessToken || "");
+        localStorage.setItem("refreshToken", data?.data?.refreshToken || "");
         localStorage.setItem("userId", data?.data?.user?._id || "");
         localStorage.setItem("userEmail", data?.data?.user?.email || "");
         localStorage.setItem("userRole", data?.data?.user?.role);
-        toast.success("Verified & Logged in!");
+        toast.success(isVerifyingSignup ? "Verified & Logged in!" : "Welcome back, Owner!");
         setShowOtpModal(false);
+        setOtp(""); // Clear OTP
         setTimeout(() => navigate("/pg-owner/dashboard"), 1000);
       }
     } catch (err) {
@@ -82,16 +98,11 @@ export default function PgOwnerAuth() {
       if (!res.ok) {
         toast.error(data.message || "Login failed");
       } else {
-        if (data?.data?.user?.role !== "owner") {
-          toast.error("Only PG Owners can login here");
-        } else {
-          localStorage.setItem("isAuthenticated", "true");
-          localStorage.setItem("userId", data?.data?.user?._id || "");
-          localStorage.setItem("userEmail", data?.data?.user?.email || "");
-          localStorage.setItem("userRole", data?.data?.user?.role);
-          toast.success("Welcome back, Owner!");
-          setTimeout(() => navigate("/pg-owner/dashboard"), 1000);
-        }
+        // Always show OTP modal after login - user must verify OTP to login
+        setOtpEmail(loginData.email.trim());
+        setIsVerifyingSignup(false);
+        setShowOtpModal(true);
+        toast.info(data.message || "OTP sent! Please verify to continue.");
       }
     } catch (err) {
       toast.error("Network error. Please try again.");
@@ -114,6 +125,8 @@ export default function PgOwnerAuth() {
       if (!res.ok) {
         toast.error(data.message || "Signup failed");
       } else {
+        setOtpEmail(signupData.email);
+        setIsVerifyingSignup(true);
         toast.success("OTP Sent! Please check your email.");
         setShowOtpModal(true);
       }
@@ -134,14 +147,17 @@ export default function PgOwnerAuth() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full relative">
             <button 
-              onClick={() => setShowOtpModal(false)}
+              onClick={() => {
+                setShowOtpModal(false);
+                setOtp(""); // Clear OTP when canceling
+              }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             >
               ✕
             </button>
             <h3 className="text-xl font-bold text-center mb-4">Verify Email</h3>
             <p className="text-center text-sm text-gray-600 mb-6">
-              Enter the 6-digit code sent to <br/><strong>{signupData.email}</strong>
+              Enter the 6-digit code sent to <br/><strong>{isVerifyingSignup ? signupData.email : (otpEmail || loginData.email)}</strong>
             </p>
             
             <form onSubmit={handleVerifyOTP} className="space-y-6">
@@ -395,7 +411,7 @@ export default function PgOwnerAuth() {
 
           <div className="mt-6 text-center">
              <p className="text-xs text-slate-400">
-               By continuing, you agree to Buddy's <a href="#" className="underline hover:text-indigo-600">Terms of Service</a> and <a href="#" className="underline hover:text-indigo-600">Privacy Policy</a>.
+               By continuing, you agree  <a href="#" className="underline hover:text-indigo-600">Terms of Service</a> and <a href="#" className="underline hover:text-indigo-600">Privacy Policy</a>.
              </p>
           </div>
         </div>

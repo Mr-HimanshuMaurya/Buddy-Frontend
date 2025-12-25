@@ -86,28 +86,13 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        if (data.data?.requiresOTP) {
-          setOtpEmail(loginData.email);
-          setIsVerifyingSignup(false);
-          setShowOtpModal(true);
-          toast.info("OTP sent! Please verify to continue.");
-          setLoginLoading(false);
-          return;
-        }
-
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("accessToken", data.data?.accessToken);
-        localStorage.setItem("refreshToken", data.data?.refreshToken);
-        localStorage.setItem("userEmail", data.data?.user?.email);
-        localStorage.setItem("userFirstName", data.data?.user?.firstname);
-        localStorage.setItem("userLastName", data.data?.user?.lastname);
-        localStorage.setItem("userPhone", data.data?.user?.phone);
-        localStorage.setItem("userId", data.data?.user?._id);
-        localStorage.setItem("userRole", data.data?.user?.role);
-        toast.success("Welcome back! Redirecting...");
-        setTimeout(() => navigate("/"), 1000); 
+        // Always show OTP modal after login - user must verify OTP to login
+        setOtpEmail(loginData.email.trim());
+        setIsVerifyingSignup(false);
+        setShowOtpModal(true);
+        toast.info(data.message || "OTP sent! Please verify to continue.");
       } else {
-        toast.error(data.error || "Invalid credentials");
+        toast.error(data.message || "Invalid credentials");
       }
     } catch (error) {
       toast.error("Network error. Please try again.");
@@ -420,7 +405,10 @@ export default function Login() {
               
               <button
                 type="button"
-                onClick={() => setShowOtpModal(false)}
+                onClick={() => {
+                  setShowOtpModal(false);
+                  setOtp(""); // Clear OTP when canceling
+                }}
                 className="w-full py-2 text-white/40 hover:text-white transition-colors text-sm"
               >
                 Cancel
