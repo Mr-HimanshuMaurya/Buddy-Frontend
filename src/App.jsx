@@ -25,6 +25,9 @@ import AboutProperties from "./components/Admin/AboutProperties.jsx";
 import AboutPgOwners from "./components/Admin/AboutPgOwners.jsx";
 import AboutUsers from "./components/Admin/AboutUsers.jsx";
 import AdminProtectedRoute from "./components/Admin/AdminProtectedRoute.jsx";
+import AboutQuery from "./components/Admin/AboutQuery.jsx";
+import ContactQuery from "./components/Admin/ContactQuery.jsx";
+
 
 
 function App() {
@@ -68,7 +71,8 @@ function App() {
         <Route path="/admin/about-property" element={<AdminProtectedRoute><AboutProperties /></AdminProtectedRoute>} />
         <Route path="/admin/about-pgowner" element={<AdminProtectedRoute><AboutPgOwners /></AdminProtectedRoute>} />
         <Route path="/admin/about-user" element={<AdminProtectedRoute><AboutUsers /></AdminProtectedRoute>} />
-
+        <Route path="/admin/about-query" element={<AdminProtectedRoute><AboutQuery /></AdminProtectedRoute>} />
+        <Route path="/admin/contact-query" element={<AdminProtectedRoute><ContactQuery /></AdminProtectedRoute>} />
 
         <Route path="*" element={<PageNotFound />} />
       </Routes>

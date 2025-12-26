@@ -3,9 +3,11 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { Users, Home, UserCheck, TrendingUp, DollarSign, LayoutDashboard, Building2, Menu, X, LogOut } from 'lucide-react';
+import { Users, Home, UserCheck, TrendingUp, DollarSign, LayoutDashboard, Building2, Menu, X, LogOut, MessageSquare, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminDashboard() {
   const [stats, setStats] = useState([
@@ -45,6 +47,8 @@ function AdminDashboard() {
     { name: 'About Properties', path: '/admin/about-property', icon: Building2 },
     { name: 'About PG Owners', path: '/admin/about-pgowner', icon: UserCheck },
     { name: 'About User', path: '/admin/about-user', icon: Users },
+    { name: 'About Enquiry', path: '/admin/about-query', icon: MessageSquare },
+    { name: 'Contact Query', path: '/admin/contact-query', icon: Phone },
   ];
   
 const handleLogout = () => {
@@ -56,7 +60,7 @@ const handleLogout = () => {
   document.cookie.split(";").forEach((cookie) => {
     document.cookie = cookie
       .replace(/^ +/, "")
-      .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+      .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/about`);
   });
 
   toast.success("Logged out successfully");
@@ -236,6 +240,7 @@ const handleLogout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50/50 flex">
+      <ToastContainer position="top-right" autoClose={3000} />
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <motion.div

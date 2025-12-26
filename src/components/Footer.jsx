@@ -38,7 +38,7 @@ export default function Footer() {
 
         {/* Quick Links & Contact */}
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm font-medium text-slate-400 mb-8">
-          <Link to="/about" className="hover:text-white transition-colors">
+          <Link to  ="/about" className="hover:text-white transition-colors">
             About Us
           </Link>
           <Link to="/properties" className="hover:text-white transition-colors">

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Building2, UserCheck, Users, Menu, X, LogOut } from 'lucide-react';
+import { LayoutDashboard, Building2, UserCheck, Users, Menu, X, LogOut, MessageSquare, Phone } from 'lucide-react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function AdminLayout({ children, pageTitle = "Admin Panel" }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -14,6 +16,8 @@ export default function AdminLayout({ children, pageTitle = "Admin Panel" }) {
     { name: 'About Properties', path: '/admin/about-property', icon: Building2 },
     { name: 'About PG Owners', path: '/admin/about-pgowner', icon: UserCheck },
     { name: 'About User', path: '/admin/about-user', icon: Users },
+    { name: 'About Enquiry', path: '/admin/about-query', icon: MessageSquare },
+    { name: 'Contact Query', path: '/admin/contact-query', icon: Phone },
   ];
 
 const handleLogout = () => {
@@ -63,6 +67,7 @@ const handleLogout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50/50 flex">
+      <ToastContainer position="top-right" autoClose={3000} />
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <motion.div

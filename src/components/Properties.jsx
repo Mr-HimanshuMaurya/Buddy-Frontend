@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   MapPin, Search, Filter, Navigation, ChevronDown, 
-  BedDouble, Bath, Ruler, Heart, Sparkles, ArrowRight 
+  BedDouble, Bath, Ruler, Heart, Sparkles, ArrowRight, IndianRupee, X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -29,6 +29,9 @@ export default function Properties() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("All");
   const [isNearby, setIsNearby] = useState(false);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [showPriceFilter, setShowPriceFilter] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
@@ -97,7 +100,13 @@ export default function Properties() {
     
     const matchesType = filterType === "All" || property.propertyType === filterType;
 
-    return matchesSearch && matchesType;
+    // Price filter
+    const propertyPrice = property.price?.amount || 0;
+    const matchesMinPrice = !minPrice || propertyPrice >= Number(minPrice);
+    const matchesMaxPrice = !maxPrice || propertyPrice <= Number(maxPrice);
+    const matchesPrice = matchesMinPrice && matchesMaxPrice;
+
+    return matchesSearch && matchesType && matchesPrice;
   });
 
   return (
@@ -177,6 +186,24 @@ export default function Properties() {
               </div>
             </div>
 
+            {/* Price Filter Button */}
+            <button
+              onClick={() => setShowPriceFilter(!showPriceFilter)}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl transition-all font-medium ${
+                (minPrice || maxPrice)
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700" 
+                  : "bg-slate-50 text-slate-600 hover:bg-white hover:shadow-md hover:text-indigo-600"
+              }`}
+            >
+              <IndianRupee size={18} />
+              <span className="whitespace-nowrap">Price</span>
+              {(minPrice || maxPrice) && (
+                <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-xs">
+                  {(minPrice || maxPrice) && "Active"}
+                </span>
+              )}
+            </button>
+
             {/* Near Me Button */}
             <button
               onClick={handleNearMe}
@@ -191,6 +218,71 @@ export default function Properties() {
             </button>
           </div>
         </motion.div>
+
+        {/* Price Filter Panel */}
+        <AnimatePresence>
+          {showPriceFilter && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-white/80 backdrop-blur-xl p-4 rounded-2xl shadow-lg shadow-indigo-100/50 mb-6 border border-white ring-1 ring-slate-100 overflow-hidden"
+            >
+              <div className="flex flex-col md:flex-row gap-4 items-center">
+                <div className="flex items-center gap-2 text-slate-700 font-medium">
+                  <IndianRupee size={18} className="text-indigo-600" />
+                  <span>Price Range:</span>
+                </div>
+                
+                <div className="flex flex-1 gap-3 items-center">
+                  <div className="flex-1">
+                    <label className="block text-xs text-slate-500 mb-1.5">Min Price (₹)</label>
+                    <div className="relative">
+                      <IndianRupee size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={minPrice}
+                        onChange={(e) => setMinPrice(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-0 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="pt-6 text-slate-400 font-bold">-</div>
+                  
+                  <div className="flex-1">
+                    <label className="block text-xs text-slate-500 mb-1.5">Max Price (₹)</label>
+                    <div className="relative">
+                      <IndianRupee size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-0 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      setMinPrice("");
+                      setMaxPrice("");
+                    }}
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-medium transition-colors flex items-center gap-2 mt-6"
+                    title="Clear Price Filter"
+                  >
+                    <X size={16} />
+                    <span className="hidden sm:inline">Clear</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Properties Grid */}
         {loading ? (
@@ -304,6 +396,9 @@ export default function Properties() {
                    setSearchTerm("");
                    setFilterType("All");
                    setIsNearby(false);
+                   setMinPrice("");
+                   setMaxPrice("");
+                   setShowPriceFilter(false);
                    fetchProperties();
                 }}
                 className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition"

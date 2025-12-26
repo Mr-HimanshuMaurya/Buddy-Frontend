@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import AdminLayout from './AdminLayout'
 import { motion } from 'framer-motion'
-import { Users, Mail, Phone, MapPin, Calendar, Search, Trash2, UserCheck, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Users, Mail, Phone, MapPin, Calendar, Search, Trash2, UserCheck, ChevronLeft, ChevronRight, Ban, CheckCircle } from 'lucide-react'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export default function AboutUsers() {
   const [users, setUsers] = useState([])
@@ -52,29 +54,37 @@ export default function AboutUsers() {
     return matchesSearch
   })
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return
+  const handleTerminateToggle = async (user) => {
+    const isTerminating = user.isActive !== false
+    const action = isTerminating ? "terminate" : "unterminate"
+    
+    if (isTerminating && !window.confirm(`Are you sure you want to terminate ${user.firstname || 'this'} ${user.lastname || ''}? They will not be able to log in to their account.`)) {
+      return
+    }
     
     try {
-      const response = await fetch(`${apiUrl}/users/${id}`, {
-        method: "DELETE",
+      const response = await fetch(`${apiUrl}/users/${user._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isActive: !isTerminating }),
       })
       
       if (response.ok) {
-        // Refresh the current page or go to previous page if current page becomes empty
-        if (users.length === 1 && currentPage > 1) {
-          setCurrentPage(currentPage - 1)
-        } else {
-          fetchUsers(currentPage)
-        }
-        alert("User deleted successfully")
+        const data = await response.json()
+        // Update the local state
+        setUsers(users.map(u => 
+          u._id === user._id ? { ...u, isActive: !isTerminating } : u
+        ))
+        toast.success(isTerminating ? "User terminated successfully" : "User un-terminated successfully")
       } else {
         const data = await response.json()
-        alert(data.message || "Failed to delete user")
+        toast.error(data.message || `Failed to ${action} user`)
       }
     } catch (error) {
-      console.error("Error deleting user:", error)
-      alert("Network error")
+      console.error(`Error ${action}ing user:`, error)
+      toast.error("Network error")
     }
   }
 
@@ -90,6 +100,7 @@ export default function AboutUsers() {
 
   return (
     <AdminLayout pageTitle="About Users">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -170,16 +181,20 @@ export default function AboutUsers() {
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {user.isActive !== false ? 'Active' : 'Inactive'}
+                          {user.isActive !== false ? 'Active' : 'Terminated'}
                         </span>
                       </div>
                     </div>
                     <button
-                      onClick={() => handleDelete(user._id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
-                      title="Delete User"
+                      onClick={() => handleTerminateToggle(user)}
+                      className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
+                        user.isActive !== false
+                          ? "text-red-600 hover:bg-red-50"
+                          : "text-green-600 hover:bg-green-50"
+                      }`}
+                      title={user.isActive !== false ? "Terminate User" : "Un-terminate User"}
                     >
-                      <Trash2 size={18} />
+                      {user.isActive !== false ? <Ban size={18} /> : <CheckCircle size={18} />}
                     </button>
                   </div>
                   <div className="space-y-2 pt-3 border-t border-gray-100">
@@ -284,16 +299,20 @@ export default function AboutUsers() {
                               ? 'bg-green-100 text-green-800'
                               : 'bg-red-100 text-red-800'
                           }`}>
-                            {user.isActive !== false ? 'Active' : 'Inactive'}
+                            {user.isActive !== false ? 'Active' : 'Terminated'}
                           </span>
                         </td>
                         <td className="px-4 lg:px-6 py-3 lg:py-4">
                           <button
-                            onClick={() => handleDelete(user._id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Delete User"
+                            onClick={() => handleTerminateToggle(user)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              user.isActive !== false
+                                ? "text-red-600 hover:bg-red-50"
+                                : "text-green-600 hover:bg-green-50"
+                            }`}
+                            title={user.isActive !== false ? "Terminate User" : "Un-terminate User"}
                           >
-                            <Trash2 size={18} />
+                            {user.isActive !== false ? <Ban size={18} /> : <CheckCircle size={18} />}
                           </button>
                         </td>
                       </motion.tr>

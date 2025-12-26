@@ -336,18 +336,17 @@ export default function PropertyDetails() {
               <div className="space-y-4">
                 {property.owner?.phone && (
                   <button 
-                    onClick={() => checkAuth(() => window.location.href = `tel:${property.owner.phone}`)}
+                  onClick={() =>
+                    checkAuth(() => {
+                      window.location.href = "tel:+916397356013";
+                    })
+                  }
                     className="w-full flex items-center justify-center gap-2 py-3 border border-indigo-600 text-indigo-600 rounded-xl font-medium hover:bg-indigo-50 transition"
                   >
                     <Phone size={18} /> Call Owner
                   </button>
                 )}
-                <button 
-                  onClick={() => checkAuth(() => setIsVisitModalOpen(true))}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 shadow-lg hover:shadow-xl transition"
-                >
-                  <Clock size={18} /> Book A Visit
-                </button>
+                
                 <button 
                   onClick={() => checkAuth(() => setIsEnquiryModalOpen(true))}
                   className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 shadow-lg hover:shadow-xl transition"
