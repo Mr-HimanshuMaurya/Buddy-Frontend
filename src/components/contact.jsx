@@ -119,24 +119,24 @@ export default function Contact() {
     {
       icon: Phone,
       title: "Call Us",
-      value: "+91 98765 43210",
-      link: "tel:+919876543210",
-      desc: "Mon-Fri from 8am to 5pm."
+      value: "+91 6397356013",
+      link: "tel:+916397356013",
+      desc: "Mon-Sun from 8am to 5pm.",
     },
     {
       icon: Mail,
       title: "Email Us",
-      value: "support@buddy.com",
-      link: "mailto:support@buddy.com",
-      desc: "Speak to our friendly team."
+      value: "amitoshteotia007@gmail.com ",
+      link: "mailto:amitoshteotia007@gmail.com ",
+      desc: "Speak to our friendly team.",
     },
     {
       icon: MapPin,
       title: "Visit Us",
-      value: "Bangalore, India",
+      value: " 712F, tower-A, Spectrum Mall, Sector-75, Noida",
       link: "#",
-      desc: "Visit our office HQ."
-    }
+      desc: "Visit our office HQ.",
+    },
   ];
 
   return (

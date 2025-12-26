@@ -1,15 +1,15 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, MapPin, BedDouble, Bath, Square, Star } from "lucide-react";
-import Image4 from "../../assets/Image20.jpg";
-import Image1 from "../../assets/Image1.jpeg";
-import Image2 from "../../assets/Image2.jpeg";
+import Image4 from "/RoyalRoom.png";
+import Image1 from "/Appartment.png";
+import Image2 from "/Luxuary.png";
 import { useNavigate } from "react-router-dom";
 
 const featuredProps = [
   {
     id: 1,
     image: Image4,
-    title: "The Royal Pavilion",
+    title: "The Royal Room",
     location: "Sector 15, Noida",
     price: "₹18***",
     rating: 4.8,
@@ -21,7 +21,7 @@ const featuredProps = [
   {
     id: 2,
     image: Image1,
-    title: "Urban Heights",
+    title: "Appartments",
     location: "Indirapuram, Ghaziabad",
     price: "₹12***",
     rating: 4.5,
@@ -33,7 +33,7 @@ const featuredProps = [
   {
     id: 3,
     image: Image2,
-    title: "Green Valley Villa",
+    title: "Luxury Kitchen",
     location: "Greater Noida West",
     price: "₹22***",
     rating: 4.9,

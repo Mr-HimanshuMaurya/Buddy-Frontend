@@ -48,6 +48,9 @@ export default function PgOwnerAuth() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   // Handlers
   const handleLoginChange = (e) => setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -286,15 +289,14 @@ export default function PgOwnerAuth() {
   };
 
   return (
-        <div className="min-h-screen flex bg-slate-50 font-sans pt-18">
+    <div className="min-h-screen flex bg-slate-50 font-sans pt-18">
+      <ToastContainer position="top-right" autoClose={3000} />
 
-        <ToastContainer position="top-right" autoClose={3000} />
-      
       {/* OTP Modal */}
       {showOtpModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full relative">
-            <button 
+            <button
               onClick={() => {
                 setShowOtpModal(false);
                 setOtp(""); // Clear OTP when canceling
@@ -305,9 +307,14 @@ export default function PgOwnerAuth() {
             </button>
             <h3 className="text-xl font-bold text-center mb-4">Verify Email</h3>
             <p className="text-center text-sm text-gray-600 mb-6">
-              Enter the 6-digit code sent to <br/><strong>{isVerifyingSignup ? signupData.email : (otpEmail || loginData.email)}</strong>
+              Enter the 6-digit code sent to <br />
+              <strong>
+                {isVerifyingSignup
+                  ? signupData.email
+                  : otpEmail || loginData.email}
+              </strong>
             </p>
-            
+
             <form onSubmit={handleVerifyOTP} className="space-y-6">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -340,7 +347,7 @@ export default function PgOwnerAuth() {
       {showForgotPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full relative">
-            <button 
+            <button
               onClick={() => {
                 setShowForgotPasswordModal(false);
                 setForgotPasswordEmail("");
@@ -349,11 +356,13 @@ export default function PgOwnerAuth() {
             >
               ✕
             </button>
-            <h3 className="text-xl font-bold text-center mb-4">Reset Password</h3>
+            <h3 className="text-xl font-bold text-center mb-4">
+              Reset Password
+            </h3>
             <p className="text-center text-sm text-gray-600 mb-6">
               Enter your email address to receive a verification code
             </p>
-            
+
             <form onSubmit={handleForgotPasswordSubmit} className="space-y-6">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -385,7 +394,7 @@ export default function PgOwnerAuth() {
       {showForgotPasswordOTP && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full relative">
-            <button 
+            <button
               onClick={() => {
                 setShowForgotPasswordOTP(false);
                 setForgotPasswordOTP("");
@@ -396,10 +405,14 @@ export default function PgOwnerAuth() {
             </button>
             <h3 className="text-xl font-bold text-center mb-4">Verify OTP</h3>
             <p className="text-center text-sm text-gray-600 mb-6">
-              Enter the 6-digit code sent to <br/><strong>{forgotPasswordEmail}</strong>
+              Enter the 6-digit code sent to <br />
+              <strong>{forgotPasswordEmail}</strong>
             </p>
-            
-            <form onSubmit={handleForgotPasswordOTPVerify} className="space-y-6">
+
+            <form
+              onSubmit={handleForgotPasswordOTPVerify}
+              className="space-y-6"
+            >
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <ShieldCheck size={20} />
@@ -431,7 +444,7 @@ export default function PgOwnerAuth() {
       {showNewPasswordForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full relative">
-            <button 
+            <button
               onClick={() => {
                 setShowNewPasswordForm(false);
                 setNewPassword("");
@@ -441,40 +454,64 @@ export default function PgOwnerAuth() {
             >
               ✕
             </button>
-            <h3 className="text-xl font-bold text-center mb-4">Set New Password</h3>
+            <h3 className="text-xl font-bold text-center mb-4">
+              Set New Password
+            </h3>
             <p className="text-center text-sm text-gray-600 mb-6">
               Enter your new password
             </p>
-            
+
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <Lock size={20} />
                 </div>
+
                 <input
-                  type="password"
+                  type={showNewPassword ? "text" : "password"}
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-slate-50 focus:bg-white"
+                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-slate-50 focus:bg-white"
                   placeholder="New Password"
                   minLength={8}
                 />
+
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                >
+                  {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
 
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <Lock size={20} />
                 </div>
+
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-slate-50 focus:bg-white"
+                  className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-slate-50 focus:bg-white"
                   placeholder="Confirm New Password"
                   minLength={8}
                 />
+
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
+                </button>
               </div>
 
               <button
@@ -492,7 +529,6 @@ export default function PgOwnerAuth() {
       {/* Left Side - Form Section */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-20 relative bg-white">
         <div className="w-full max-w-md space-y-8">
-          
           {/* Header */}
           <div className="text-center lg:text-left">
             <h2 className="mt-6 text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -510,7 +546,9 @@ export default function PgOwnerAuth() {
             <button
               onClick={() => setIsLogin(true)}
               className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-                isLogin ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                isLogin
+                  ? "bg-white text-indigo-600 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
               }`}
             >
               Login
@@ -518,7 +556,9 @@ export default function PgOwnerAuth() {
             <button
               onClick={() => setIsLogin(false)}
               className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-                !isLogin ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                !isLogin
+                  ? "bg-white text-indigo-600 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
               }`}
             >
               Register
@@ -538,7 +578,9 @@ export default function PgOwnerAuth() {
                 className="space-y-6"
               >
                 <div>
-                  <label className="block text-sm font-medium text-slate-700">Email Address</label>
+                  <label className="block text-sm font-medium text-slate-700">
+                    Email Address
+                  </label>
                   <div className="mt-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Mail size={20} />
@@ -556,7 +598,9 @@ export default function PgOwnerAuth() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700">Password</label>
+                  <label className="block text-sm font-medium text-slate-700">
+                    Password
+                  </label>
                   <div className="mt-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Lock size={20} />
@@ -575,11 +619,15 @@ export default function PgOwnerAuth() {
                       onClick={() => setShowLoginPassword(!showLoginPassword)}
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                     >
-                      {showLoginPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showLoginPassword ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
                     </button>
                   </div>
                   <div className="flex justify-end mt-2">
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setShowForgotPasswordModal(true)}
                       className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
@@ -609,7 +657,9 @@ export default function PgOwnerAuth() {
               >
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700">First Name</label>
+                    <label className="block text-sm font-medium text-slate-700">
+                      First Name
+                    </label>
                     <div className="mt-1 relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <User size={18} />
@@ -626,9 +676,11 @@ export default function PgOwnerAuth() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700">Last Name</label>
+                    <label className="block text-sm font-medium text-slate-700">
+                      Last Name
+                    </label>
                     <div className="mt-1 relative">
-                       {/* Reusing User icon but could be generic */}
+                      {/* Reusing User icon but could be generic */}
                       <input
                         name="lastname"
                         type="text"
@@ -643,7 +695,9 @@ export default function PgOwnerAuth() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700">Email Address</label>
+                  <label className="block text-sm font-medium text-slate-700">
+                    Email Address
+                  </label>
                   <div className="mt-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Mail size={18} />
@@ -661,7 +715,9 @@ export default function PgOwnerAuth() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700">Phone Number</label>
+                  <label className="block text-sm font-medium text-slate-700">
+                    Phone Number
+                  </label>
                   <div className="mt-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Phone size={18} />
@@ -679,7 +735,9 @@ export default function PgOwnerAuth() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700">Password</label>
+                  <label className="block text-sm font-medium text-slate-700">
+                    Password
+                  </label>
                   <div className="mt-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Lock size={18} />
@@ -693,12 +751,16 @@ export default function PgOwnerAuth() {
                       className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-slate-50 focus:bg-white"
                       placeholder="Create a strong password"
                     />
-                     <button
+                    <button
                       type="button"
                       onClick={() => setShowSignupPassword(!showSignupPassword)}
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                     >
-                      {showSignupPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showSignupPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -708,16 +770,26 @@ export default function PgOwnerAuth() {
                   disabled={signupLoading}
                   className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {signupLoading ? "Creating Account..." : "Create Owner Account"}
+                  {signupLoading
+                    ? "Creating Account..."
+                    : "Create Owner Account"}
                 </button>
               </motion.form>
             )}
           </AnimatePresence>
 
           <div className="mt-6 text-center">
-             <p className="text-xs text-slate-400">
-               By continuing, you agree  <a href="#" className="underline hover:text-indigo-600">Terms of Service</a> and <a href="#" className="underline hover:text-indigo-600">Privacy Policy</a>.
-             </p>
+            <p className="text-xs text-slate-400">
+              By continuing, you agree{" "}
+              <a href="#" className="underline hover:text-indigo-600">
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a href="#" className="underline hover:text-indigo-600">
+                Privacy Policy
+              </a>
+              .
+            </p>
           </div>
         </div>
       </div>
@@ -732,12 +804,12 @@ export default function PgOwnerAuth() {
           />
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/90 to-purple-900/90" />
         </div>
-        
+
         <div className="relative z-10 w-full flex flex-col justify-center p-16 text-white">
           <motion.div
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ delay: 0.3 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-200 text-xs font-semibold mb-6">
               <ShieldCheck size={14} /> Trusted by 5000+ Owners
@@ -746,20 +818,29 @@ export default function PgOwnerAuth() {
               Grow Your Property Business with Us!
             </h1>
             <p className="text-lg text-indigo-100 mb-10 leading-relaxed max-w-lg">
-              Streamline your PG management, find verified tenants faster, and maximize your rental yields with our comprehensive dashboard.
+              Streamline your PG management, find verified tenants faster, and
+              maximize your rental yields with our comprehensive dashboard.
             </p>
 
             <div className="space-y-4">
               {[
                 { icon: Building2, text: "List unlimited properties for free" },
-                { icon: TrendingUp, text: "Real-time analytics and revenue tracking" },
-                { icon: ShieldCheck, text: "Verified tenant leads and secure payments" },
+                {
+                  icon: TrendingUp,
+                  text: "Real-time analytics and revenue tracking",
+                },
+                {
+                  icon: ShieldCheck,
+                  text: "Verified tenant leads and secure payments",
+                },
               ].map((item, index) => (
                 <div key={index} className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                     <item.icon className="w-5 h-5 text-yellow-400" />
                   </div>
-                  <span className="font-medium text-indigo-50">{item.text}</span>
+                  <span className="font-medium text-indigo-50">
+                    {item.text}
+                  </span>
                 </div>
               ))}
             </div>

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin, Heart } from "lucide-react";
 import logo from "../assets/PG.png";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -13,12 +14,12 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
-        
         {/* Logo & Tagline */}
-        <div className="mb-8">
+        <div className="mb-8 mt-5">
           <img src={logo} alt="Logo" className="h-12 w-auto mx-auto mb-4" />
           <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
-            Your trusted companion for finding the perfect living space. Comfortable, secure, and affordable.
+            Your trusted companion for finding the perfect living space.
+            Comfortable, secure, and affordable.
           </p>
         </div>
 
@@ -37,20 +38,24 @@ export default function Footer() {
 
         {/* Quick Links & Contact */}
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm font-medium text-slate-400 mb-8">
-          <a href="#" className="hover:text-white transition-colors">About Us</a>
-          <a href="#" className="hover:text-white transition-colors">Properties</a>
-          <a href="#" className="hover:text-white transition-colors">Contact</a>
-          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-white transition-colors">Terms</a>
+          <Link to="/about" className="hover:text-white transition-colors">
+            About Us
+          </Link>
+          <Link to="/properties" className="hover:text-white transition-colors">
+            Properties
+          </Link>
+          <Link to="/contact" className="hover:text-white transition-colors">
+            Contact
+          </Link>
         </div>
 
         {/* Bottom Bar */}
         <div className="border-t border-slate-900 w-full pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
-          <div>
-            © {currentYear} All rights reserved.
-          </div>
+          <div>© {currentYear} All rights reserved.</div>
           <div className="flex items-center gap-1">
-            Made with <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" /> in India
+            Made with{" "}
+            <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" />{" "}
+            in India
           </div>
         </div>
       </div>

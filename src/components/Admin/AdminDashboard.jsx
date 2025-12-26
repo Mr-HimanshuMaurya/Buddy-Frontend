@@ -52,7 +52,7 @@ const handleLogout = () => {
   localStorage.clear();
   sessionStorage.clear();
 
-  // Clear all cookies
+  // Clear all cookie
   document.cookie.split(";").forEach((cookie) => {
     document.cookie = cookie
       .replace(/^ +/, "")

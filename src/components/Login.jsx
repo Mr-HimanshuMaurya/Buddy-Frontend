@@ -4,6 +4,8 @@ import { ToastContainer, toast } from "react-toastify";
 import { User, Mail, Lock, Phone, ArrowRight, Loader2, Building2, ArrowLeft } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 import LoginPageVideo from "../assets/LoginPageVideo.mp4";
+import { Eye, EyeOff } from "lucide-react";
+
 
 const InputField = ({ icon: Icon, type, name, value, onChange, placeholder, showPassToggle, onTogglePass }) => (
   <div className="relative group">
@@ -36,6 +38,9 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   // Check for mode switch from navigation state
   useEffect(() => {
@@ -327,7 +332,12 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden">
-      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar
+        theme="colored"
+      />
 
       {/* Video Background */}
       <div className="absolute inset-0 z-0">
@@ -350,40 +360,46 @@ export default function Login() {
         className="absolute top-6 left-6 z-20 p-3 bg-white/5 hover:bg-white/10 backdrop-blur-md rounded-full text-white/80 hover:text-white transition-all shadow-lg border border-white/10 group overflow-hidden"
         title="Go Back"
       >
-        <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform relative z-10" />
+        <ArrowLeft
+          size={24}
+          className="group-hover:-translate-x-1 transition-transform relative z-10"
+        />
       </button>
 
       {/* Main Card */}
       <div className="relative z-10 w-full max-w-[480px]">
         <div className="bg-black/40 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] rounded-[2.5rem] border border-white/10 p-2 overflow-hidden relative">
-          
           {/* Decorative Gloss Reflection */}
           <div className="absolute -top-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
 
           {/* Header Section */}
           <div className="px-8 pt-8 pb-4 text-center relative z-10">
-             <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white mb-6 shadow-[0_0_40px_rgba(99,102,241,0.5)] ring-1 ring-white/50 relative group backdrop-blur-sm">
-                <div className="absolute inset-0 bg-white/20 rounded-3xl animate-pulse" />
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent rounded-3xl" />
-                <Building2 size={40} strokeWidth={1.5} className="relative z-10 drop-shadow-md transition-transform duration-300" />
-             </div>
-             <h1 className="text-4xl font-bold text-white drop-shadow-lg tracking-tight">
-               Welcome
-             </h1>
-             <p className="text-indigo-200 mt-2 font-medium tracking-wide">
-               Find your perfect stay.
-             </p>
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white mb-6 shadow-[0_0_40px_rgba(99,102,241,0.5)] ring-1 ring-white/50 relative group backdrop-blur-sm">
+              <div className="absolute inset-0 bg-white/20 rounded-3xl animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent rounded-3xl" />
+              <Building2
+                size={40}
+                strokeWidth={1.5}
+                className="relative z-10 drop-shadow-md transition-transform duration-300"
+              />
+            </div>
+            <h1 className="text-4xl font-bold text-white drop-shadow-lg tracking-tight">
+              Welcome
+            </h1>
+            <p className="text-indigo-200 mt-2 font-medium tracking-wide">
+              Find your perfect stay.
+            </p>
           </div>
 
           {/* Toggle Switch */}
           <div className="px-8 mb-6 relative z-10">
             <div className="bg-black/30 p-1.5 rounded-2xl flex relative backdrop-blur-md border border-white/5 shadow-inner">
-              <div 
+              <div
                 className="absolute top-1.5 bottom-1.5 bg-white/15 rounded-xl shadow-lg border border-white/10 backdrop-blur-sm transition-all duration-300 ease-in-out"
                 style={{
                   left: isLogin ? "6px" : "50%",
-                  width: "calc(50% - 9px)"
+                  width: "calc(50% - 9px)",
                 }}
               />
               <button
@@ -409,28 +425,28 @@ export default function Login() {
           <div className="px-8 pb-8 relative z-10">
             {isLogin ? (
               <form onSubmit={handleLogin} className="space-y-4">
-                <InputField 
-                  icon={Mail} 
-                  type="email" 
-                  name="email" 
-                  value={loginData.email} 
-                  onChange={handleLoginChange} 
-                  placeholder="Email Address" 
+                <InputField
+                  icon={Mail}
+                  type="email"
+                  name="email"
+                  value={loginData.email}
+                  onChange={handleLoginChange}
+                  placeholder="Email Address"
                 />
-                <InputField 
-                  icon={Lock} 
-                  type={showLoginPassword ? "text" : "password"} 
-                  name="password" 
-                  value={loginData.password} 
-                  onChange={handleLoginChange} 
+                <InputField
+                  icon={Lock}
+                  type={showLoginPassword ? "text" : "password"}
+                  name="password"
+                  value={loginData.password}
+                  onChange={handleLoginChange}
                   placeholder="Password"
                   showPassToggle={showLoginPassword}
                   onTogglePass={() => setShowLoginPassword(!showLoginPassword)}
                 />
 
                 <div className="flex justify-end">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setShowForgotPasswordModal(true)}
                     className="text-sm text-indigo-300 hover:text-white transition-colors"
                   >
@@ -445,58 +461,71 @@ export default function Login() {
                 >
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                   <span className="relative flex items-center gap-2">
-                    {loginLoading ? <Loader2 className="animate-spin" /> : <>Log In <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" /></>}
+                    {loginLoading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <>
+                        Log In{" "}
+                        <ArrowRight
+                          size={20}
+                          className="group-hover:translate-x-1 transition-transform"
+                        />
+                      </>
+                    )}
                   </span>
                 </button>
               </form>
             ) : (
               <form onSubmit={handleSignup} className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <InputField 
-                    icon={User} 
-                    type="text" 
-                    name="firstname" 
-                    value={signupData.firstname} 
-                    onChange={handleSignupChange} 
-                    placeholder="First Name" 
+                  <InputField
+                    icon={User}
+                    type="text"
+                    name="firstname"
+                    value={signupData.firstname}
+                    onChange={handleSignupChange}
+                    placeholder="First Name"
                   />
-                  <InputField 
-                    icon={User} 
-                    type="text" 
-                    name="lastname" 
-                    value={signupData.lastname} 
-                    onChange={handleSignupChange} 
-                    placeholder="Last Name" 
+                  <InputField
+                    icon={User}
+                    type="text"
+                    name="lastname"
+                    value={signupData.lastname}
+                    onChange={handleSignupChange}
+                    placeholder="Last Name"
                   />
                 </div>
-                <InputField 
-                  icon={Mail} 
-                  type="email" 
-                  name="email" 
-                  value={signupData.email} 
-                  onChange={handleSignupChange} 
-                  placeholder="Email Address" 
+                <InputField
+                  icon={Mail}
+                  type="email"
+                  name="email"
+                  value={signupData.email}
+                  onChange={handleSignupChange}
+                  placeholder="Email Address"
                 />
-                <InputField 
-                  icon={Phone} 
-                  type="text" 
-                  name="phone" 
-                  value={signupData.phone} 
+                <InputField
+                  icon={Phone}
+                  type="text"
+                  name="phone"
+                  value={signupData.phone}
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, "");
-                    if (val.length <= 10) setSignupData({ ...signupData, phone: val });
-                  }} 
-                  placeholder="Phone Number" 
+                    if (val.length <= 10)
+                      setSignupData({ ...signupData, phone: val });
+                  }}
+                  placeholder="Phone Number"
                 />
-                <InputField 
-                  icon={Lock} 
-                  type={showSignupPassword ? "text" : "password"} 
-                  name="password" 
-                  value={signupData.password} 
-                  onChange={handleSignupChange} 
+                <InputField
+                  icon={Lock}
+                  type={showSignupPassword ? "text" : "password"}
+                  name="password"
+                  value={signupData.password}
+                  onChange={handleSignupChange}
                   placeholder="Create Password"
                   showPassToggle={showSignupPassword}
-                  onTogglePass={() => setShowSignupPassword(!showSignupPassword)}
+                  onTogglePass={() =>
+                    setShowSignupPassword(!showSignupPassword)
+                  }
                 />
 
                 <button
@@ -506,14 +535,24 @@ export default function Login() {
                 >
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                   <span className="relative flex items-center gap-2">
-                    {signupLoading ? <Loader2 className="animate-spin" /> : <>Sign Up <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" /></>}
+                    {signupLoading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <>
+                        Sign Up{" "}
+                        <ArrowRight
+                          size={20}
+                          className="group-hover:translate-x-1 transition-transform"
+                        />
+                      </>
+                    )}
                   </span>
                 </button>
               </form>
             )}
           </div>
         </div>
-        
+
         {/* Footer */}
         <p className="text-center text-white/30 text-xs mt-8 font-medium drop-shadow-md">
           &copy; {new Date().getFullYear()} All rights reserved.
@@ -525,10 +564,13 @@ export default function Login() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-            
-            <h2 className="text-2xl font-bold text-white mb-2 text-center">Verification Required</h2>
+
+            <h2 className="text-2xl font-bold text-white mb-2 text-center">
+              Verification Required
+            </h2>
             <p className="text-white/60 text-center mb-6 text-sm">
-              Please enter the OTP sent to <span className="text-white font-medium">{otpEmail}</span>
+              Please enter the OTP sent to{" "}
+              <span className="text-white font-medium">{otpEmail}</span>
             </p>
 
             <form onSubmit={handleVerifyOtp} className="space-y-6">
@@ -551,9 +593,13 @@ export default function Login() {
                 disabled={otpLoading}
                 className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
               >
-                {otpLoading ? <Loader2 className="animate-spin" /> : "Verify & Continue"}
+                {otpLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Verify & Continue"
+                )}
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => {
@@ -574,8 +620,10 @@ export default function Login() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-            
-            <h2 className="text-2xl font-bold text-white mb-2 text-center">Reset Password</h2>
+
+            <h2 className="text-2xl font-bold text-white mb-2 text-center">
+              Reset Password
+            </h2>
             <p className="text-white/60 text-center mb-6 text-sm">
               Enter your email address to receive a verification code
             </p>
@@ -600,9 +648,13 @@ export default function Login() {
                 disabled={forgotPasswordLoading}
                 className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
               >
-                {forgotPasswordLoading ? <Loader2 className="animate-spin" /> : "Send OTP"}
+                {forgotPasswordLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Send OTP"
+                )}
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => {
@@ -623,13 +675,21 @@ export default function Login() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-            
-            <h2 className="text-2xl font-bold text-white mb-2 text-center">Verify OTP</h2>
+
+            <h2 className="text-2xl font-bold text-white mb-2 text-center">
+              Verify OTP
+            </h2>
             <p className="text-white/60 text-center mb-6 text-sm">
-              Enter the OTP sent to <span className="text-white font-medium">{forgotPasswordEmail}</span>
+              Enter the OTP sent to{" "}
+              <span className="text-white font-medium">
+                {forgotPasswordEmail}
+              </span>
             </p>
 
-            <form onSubmit={handleForgotPasswordOTPVerify} className="space-y-6">
+            <form
+              onSubmit={handleForgotPasswordOTPVerify}
+              className="space-y-6"
+            >
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                   <Lock className="h-5 w-5 text-white/60" />
@@ -649,9 +709,13 @@ export default function Login() {
                 disabled={forgotPasswordLoading}
                 className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
               >
-                {forgotPasswordLoading ? <Loader2 className="animate-spin" /> : "Verify OTP"}
+                {forgotPasswordLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Verify OTP"
+                )}
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => {
@@ -672,8 +736,10 @@ export default function Login() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-            
-            <h2 className="text-2xl font-bold text-white mb-2 text-center">Set New Password</h2>
+
+            <h2 className="text-2xl font-bold text-white mb-2 text-center">
+              Set New Password
+            </h2>
             <p className="text-white/60 text-center mb-6 text-sm">
               Enter your new password
             </p>
@@ -683,30 +749,52 @@ export default function Login() {
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                   <Lock className="h-5 w-5 text-white/60" />
                 </div>
+
                 <input
-                  type="password"
+                  type={showNewPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all"
+                  className="block w-full pl-12 pr-12 py-4 bg-white/5 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all"
                   placeholder="New Password"
                   required
                   minLength={8}
                 />
+
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/50 hover:text-white transition"
+                >
+                  {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
 
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                   <Lock className="h-5 w-5 text-white/60" />
                 </div>
+
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all"
+                  className="block w-full pl-12 pr-12 py-4 bg-white/5 border border-white/10 focus:border-cyan-500/50 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all"
                   placeholder="Confirm New Password"
                   required
                   minLength={8}
                 />
+
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/50 hover:text-white transition"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
+                </button>
               </div>
 
               <button
@@ -714,9 +802,13 @@ export default function Login() {
                 disabled={forgotPasswordLoading}
                 className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
               >
-                {forgotPasswordLoading ? <Loader2 className="animate-spin" /> : "Reset Password"}
+                {forgotPasswordLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Reset Password"
+                )}
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => {
