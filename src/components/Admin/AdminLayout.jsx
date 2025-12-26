@@ -16,10 +16,27 @@ export default function AdminLayout({ children, pageTitle = "Admin Panel" }) {
     { name: 'About User', path: '/admin/about-user', icon: Users },
   ];
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/');
-  };
+const handleLogout = () => {
+  // Clear storage
+  localStorage.clear();
+  sessionStorage.clear();
+
+  // Clear all cookies
+  document.cookie.split(";").forEach((cookie) => {
+    document.cookie = cookie
+      .replace(/^ +/, "")
+      .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+  });
+
+  toast.success("Logged out successfully");
+
+  // Redirect to login/home
+  setTimeout(() => {
+    navigate("/");
+    window.location.reload(); // optional but recommended
+  }, 500);
+};
+
 
   // Auto-open sidebar on desktop
   useEffect(() => {

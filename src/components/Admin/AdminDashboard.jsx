@@ -47,10 +47,27 @@ function AdminDashboard() {
     { name: 'About User', path: '/admin/about-user', icon: Users },
   ];
   
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/');
-  };
+const handleLogout = () => {
+  // Clear storage
+  localStorage.clear();
+  sessionStorage.clear();
+
+  // Clear all cookies
+  document.cookie.split(";").forEach((cookie) => {
+    document.cookie = cookie
+      .replace(/^ +/, "")
+      .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+  });
+
+  toast.success("Logged out successfully");
+
+  // Redirect to login/home
+  setTimeout(() => {
+    navigate("/");
+    window.location.reload(); // optional but recommended
+  }, 500);
+};
+
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 

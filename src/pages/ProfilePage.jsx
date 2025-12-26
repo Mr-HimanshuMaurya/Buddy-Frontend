@@ -34,11 +34,27 @@ export default function ProfilePage() {
     });
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    toast.success("Logged out successfully");
-    setTimeout(() => navigate("/"), 500);
-  };
+const handleLogout = () => {
+  // Clear storage
+  localStorage.clear();
+  sessionStorage.clear();
+
+  // Clear all cookies
+  document.cookie.split(";").forEach((cookie) => {
+    document.cookie = cookie
+      .replace(/^ +/, "")
+      .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+  });
+
+  toast.success("Logged out successfully");
+
+  // Redirect to login/home
+  setTimeout(() => {
+    navigate("/");
+    window.location.reload(); // optional but recommended
+  }, 500);
+};
+
 
   const handleUpdate = async (e) => {
     e.preventDefault();

@@ -92,13 +92,26 @@ const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
     }
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    setUserData(null);
-    setIsProfileModalOpen(false);
-    toast.success("Logged out successfully");
+const handleLogout = () => {
+  // Clear storage
+  localStorage.clear();
+  sessionStorage.clear();
+
+  // Clear all cookies
+  document.cookie.split(";").forEach((cookie) => {
+    document.cookie = cookie
+      .replace(/^ +/, "")
+      .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+  });
+
+  toast.success("Logged out successfully");
+
+  // Redirect to login/home
+  setTimeout(() => {
     navigate("/");
-  };
+    window.location.reload(); // optional but recommended
+  }, 500);
+};
 
   const navLinks = [
     { name: "Home", path: "/", icon: Home },
